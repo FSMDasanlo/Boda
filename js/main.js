@@ -1,19 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Configuración e inicialización de Firebase ---
-    // TODO: Reemplaza esto con la configuración de tu propio proyecto de Firebase
-    const firebaseConfig = {
-        apiKey: "TU_API_KEY",
-        authDomain: "TU_PROJECT_ID.firebaseapp.com",
-        projectId: "TU_PROJECT_ID",
-        storageBucket: "TU_PROJECT_ID.appspot.com",
-        messagingSenderId: "TU_SENDER_ID",
-        appId: "TU_APP_ID"
-    };
-
-    // Inicializar Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+    // Firebase se inicializa automáticamente gracias a /__/firebase/init.js
+    // cuando el sitio está desplegado en Firebase Hosting.
+    const db = firebase.firestore(); // Ahora puedes usar firebase directamente
+    const storage = firebase.storage(); // Y también storage
 
     // --- Selectores de elementos ---
     const weddingInfo = document.querySelector('.wedding-info');
