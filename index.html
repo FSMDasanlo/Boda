@@ -34,6 +34,10 @@
                 </div>
             </div>
             <div class="card-face card-back">
+                <div id="confirmation-message" class="confirmation-message">
+                    <div class="confirmation-icon">&#10004;</div>
+                    <p>¡Recuerdo enviado!</p>
+                </div>
                 <h2>Tu mensaje</h2>
                 <form id="memory-form">
                     <input type="text" id="guest-name" class="name-input" placeholder="Tu nombre" required>
@@ -46,13 +50,14 @@
                             <option value="Georgia">Serif</option>
                         </select>
                         <select id="font-size" title="Tamaño de fuente">
-                            <option value="3">Mediano</option>
+                            <option value="3" selected>Mediano</option>
                             <option value="5">Grande</option>
                             <option value="2">Pequeño</option>
                         </select>
-                        <input type="color" id="font-color" value="#FFFFFF" title="Color de fuente">
+                        <input type="color" id="font-color" value="#20c997" title="Color de fuente">
                     </div>
                     <div id="message-box" class="editable" contenteditable="true" spellcheck="false"></div>
+                    <div id="char-counter" class="char-counter"></div>
                     <div class="upload-section">
                         <button type="button" id="upload-photo-button">Añadir foto</button>
                         <input type="file" id="photo-upload" accept="image/*" hidden multiple>
@@ -64,6 +69,11 @@
             </div>
         </div>
     </main>
+
+    <!-- SDKs de Firebase (versión 8 - compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <script src="js/main.js"></script>
 </body>

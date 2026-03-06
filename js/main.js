@@ -1,4 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Configuración e inicialización de Firebase ---
+    // TODO: Reemplaza esto con la configuración de tu propio proyecto de Firebase
+    const firebaseConfig = {
+        apiKey: "TU_API_KEY",
+        authDomain: "TU_PROJECT_ID.firebaseapp.com",
+        projectId: "TU_PROJECT_ID",
+        storageBucket: "TU_PROJECT_ID.appspot.com",
+        messagingSenderId: "TU_SENDER_ID",
+        appId: "TU_APP_ID"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
     // --- Selectores de elementos ---
     const weddingInfo = document.querySelector('.wedding-info');
     const card = document.querySelector('.card');
@@ -15,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadPhotoButton = document.getElementById('upload-photo-button');
     const photoUploadInput = document.getElementById('photo-upload');
     const imagePreview = document.getElementById('image-preview-container');
+    const charCounter = document.getElementById('char-counter');
+    const confirmationMessage = document.getElementById('confirmation-message');
 
     if (!card || !flipButton || !backButton || !memoryForm) {
         console.error('Alguno de los elementos principales no se encontró.');
@@ -30,6 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
     backButton.addEventListener('click', flipCard);
 
     // --- Lógica del editor de texto ---
+    // Establece el color inicial del texto al cargar la página, tomando el valor del input
+    messageBox.style.color = fontColorInput.value;
+
     const applyStyle = (command, value = null) => {
         document.execCommand(command, false, value);
         messageBox.focus();
@@ -38,6 +59,22 @@ document.addEventListener('DOMContentLoaded', () => {
     fontNameSelect.addEventListener('change', () => applyStyle('fontName', fontNameSelect.value));
     fontSizeSelect.addEventListener('change', () => applyStyle('fontSize', fontSizeSelect.value));
     fontColorInput.addEventListener('input', () => applyStyle('foreColor', fontColorInput.value));
+
+    // --- Lógica del contador de caracteres ---
+    const MAX_CHARS = 500;
+    charCounter.textContent = `0 / ${MAX_CHARS}`; // Inicializar
+
+    messageBox.addEventListener('input', () => {
+        const currentLength = messageBox.innerText.length;
+        
+        charCounter.textContent = `${currentLength} / ${MAX_CHARS}`;
+
+        if (currentLength > MAX_CHARS) {
+            charCounter.style.color = '#ff4d4d'; // Rojo para indicar que se pasó
+        } else {
+            charCounter.style.color = 'rgba(255, 255, 255, 0.7)';
+        }
+    });
 
     // --- Lógica para subir foto ---
     let selectedFiles = [];
@@ -91,8 +128,27 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const guestName = guestNameInput.value;
         const messageHTML = messageBox.innerHTML;
-        if (!guestName.trim() || (!messageHTML.trim() && selectedFiles.length === 0)) {
+
+        // Validación extra: Límite de caracteres
+        if (messageBox.innerText.length > MAX_CHARS) {
+            alert(`Tu mensaje es demasiado largo. El límite es de ${MAX_CHARS} caracteres.`);
+            submitButton.disabled = false; // Reactivar botón
+            submitButton.textContent = 'Enviar Recuerdo';
+            messageBox.focus();
+            return;
+        }
+
+        // Validación 1: Nombre del invitado no puede estar vacío
+        if (!guestName.trim()) {
+            alert('Por favor, no te olvides de poner tu nombre.');
+            guestNameInput.focus(); // Pone el foco en el campo del nombre
+            return;
+        }
+
+        // Validación 2: Debe haber un mensaje o una foto
+        if (!messageHTML.trim() && selectedFiles.length === 0) {
             alert('Por favor, escribe un mensaje o sube una foto.');
+            messageBox.focus(); // Pone el foco en el campo del mensaje
             return;
         }
 
@@ -100,61 +156,55 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.disabled = true;
         submitButton.textContent = 'Enviando...';
 
-        // --- INICIO: CÓDIGO DE SIMULACIÓN (BORRAR AL USAR FIREBASE) ---
-        setTimeout(() => {
-            console.log("--- ENVIANDO RECUERDO (SIMULACIÓN) ---");
-            console.log("Nombre:", guestName);
-            console.log("Mensaje (HTML):", messageHTML);
-            if (selectedFiles.length > 0) {
-                console.log("Archivos de imagen:", selectedFiles.map(f => f.name));
-            }
-            alert('¡Gracias por tu recuerdo! (Esto es una simulación. Revisa la consola para ver los datos).');
-            
-            guestNameInput.value = '';
-            messageBox.innerHTML = '';
-            imagePreview.innerHTML = '';
-            selectedFiles = [];
-            
-            card.classList.remove('is-flipped');
-            submitButton.disabled = false;
-            submitButton.textContent = 'Enviar Recuerdo';
-        }, 1500);
-        // --- FIN: CÓDIGO DE SIMULACIÓN ---
-
-        // --- INICIO: LÓGICA REAL DE FIREBASE (DESCOMENTAR CUANDO ESTÉ CONFIGURADO) ---
-        /*
+        // --- INICIO: LÓGICA REAL DE FIREBASE ---
         const saveMemory = async () => {
             try {
+                // 1. Subir imágenes a Firebase Storage si existen
                 let imageUrls = [];
                 if (selectedFiles.length > 0) {
                     const uploadPromises = selectedFiles.map(file => {
                         const filePath = `memories/${Date.now()}_${file.name}`;
                         const fileRef = storage.ref().child(filePath);
-                        // Devolvemos la promesa de subida que se resuelve con la URL
                         return fileRef.put(file).then(() => fileRef.getDownloadURL());
                     });
-                    // Esperamos a que todas las subidas terminen
                     imageUrls = await Promise.all(uploadPromises);
                 }
+
+                // 2. Guardar los datos en Firestore
                 const memoryData = {
                     guestName: guestName,
                     messageHTML: messageHTML,
-                    imageUrls: imageUrls, // Guardamos un array de URLs
+                    imageUrls: imageUrls,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 await db.collection('memories').add(memoryData);
-                alert('¡Recuerdo guardado con éxito!');
-                // Limpiar y volver...
+
+                // 3. Mostrar animación de éxito y resetear el formulario
+                confirmationMessage.classList.add('show');
+
+                setTimeout(() => {
+                    confirmationMessage.classList.remove('show');
+                    guestNameInput.value = '';
+                    messageBox.innerHTML = '';
+                    imagePreview.innerHTML = '';
+                    selectedFiles = [];
+                    charCounter.textContent = `0 / ${MAX_CHARS}`;
+                    card.classList.remove('is-flipped');
+                    // Reactivamos el botón al final de la animación de vuelta
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Enviar Recuerdo';
+                }, 2000);
+
             } catch (error) {
                 console.error("Error al guardar el recuerdo: ", error);
-                alert('Hubo un error al guardar tu recuerdo.');
-            } finally {
+                alert('Hubo un error al guardar tu recuerdo. Por favor, inténtalo de nuevo.');
+                // En caso de error, también reactivamos el botón
                 submitButton.disabled = false;
                 submitButton.textContent = 'Enviar Recuerdo';
             }
         };
+
         saveMemory();
-        */
         // --- FIN: LÓGICA REAL DE FIREBASE ---
     });
 

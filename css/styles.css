@@ -43,6 +43,14 @@ body {
     transform: rotateY(180deg);
 }
 
+/* Corrección: Gestionar eventos de puntero para evitar bloqueos al girar */
+.card.is-flipped .card-front {
+    pointer-events: none;
+}
+.card.is-flipped .card-back {
+    pointer-events: auto;
+}
+
 /* Estilo común para ambas caras de la tarjeta */
 .card-face {
     position: absolute;
@@ -50,12 +58,12 @@ body {
     height: 100%;
     backface-visibility: hidden;
     border-radius: 25px;
-    overflow: hidden; /* Para que el contenido respete el borde redondeado */
+    /* overflow: hidden; */ /* Desactivado para permitir que los desplegables (select) se vean */
 }
 
 .card-front {
     /* La cara frontal tiene la imagen de fondo */
-    background-image: url('../img/portada.jpg');
+    background-image: url('../img/portada2.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -81,12 +89,14 @@ body {
     justify-content: center;
     align-items: center;
     padding: 30px;
+    pointer-events: none; /* Inicialmente desactivado para que no interfiera */
+    position: relative; /* Para posicionar el mensaje de confirmación */
 }
 
 /* 1. Estilo para la fecha en la parte superior */
 .wedding-date {
     position: absolute;
-    top: 40px;
+    top: 50px;
     left: 0;
     right: 0;
     z-index: 20;
@@ -95,7 +105,7 @@ body {
     text-shadow: 0 2px 5px rgba(0,0,0,0.6);
     font-family: 'Dancing Script', cursive;
     font-weight: 700;
-    font-size: 2.2em;
+    font-size: 1.8em;
 }
 
 .welcome-text {
@@ -128,7 +138,7 @@ body {
 .welcome-text span {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 25%;
     white-space: nowrap;
     opacity: 0; /* Inician ocultas */
     /* 1. Animación más lenta y secuencial */
@@ -144,37 +154,37 @@ body {
     color: #ffffff;
     font-size: 1.5em; /* La principal, más grande */
     z-index: 10;
-    --start-transform: translate(-50%, -250%); /* Desde arriba */
-    --end-rotate: 0deg;
-    animation-delay: 0s;
+    --start-transform: translate(-50%, -400%); /* Desde arriba */
+    --end-rotate: -15deg;
+    animation-delay: 1s;
 }
 
 .lang-2 {
     color: #ffc0cb; /* Rosa pastel */
     --start-transform: translate(-250%, -70%); /* Desde la izquierda */
     --end-rotate: -15deg;
-    animation-delay: 1s; /* 2. Ajustamos el retardo */
+    animation-delay: 2s; /* 2. Ajustamos el retardo */
 }
 
 .lang-3 {
     color: #f0e68c; /* Caqui claro (dorado suave) */
     --start-transform: translate(150%, -30%); /* Desde la derecha */
     --end-rotate: 10deg;
-    animation-delay: 2s; /* 2. Ajustamos el retardo */
+    animation-delay: 3s; /* 2. Ajustamos el retardo */
 }
 
 .lang-4 {
     color: #add8e6; /* Azul claro */
-    --start-transform: translate(-50%, 200%); /* Desde abajo */
+    --start-transform: translate(-50%, 600%); /* Desde abajo */
     --end-rotate: 20deg;
-    animation-delay: 3s; /* 2. Ajustamos el retardo */
+    animation-delay: 4s; /* 2. Ajustamos el retardo */
 }
 
 .lang-5 {
     color: #98fb98; /* Verde pálido */
-    --start-transform: translate(150%, 150%); /* Desde abajo-derecha */
+    --start-transform: translate(150%, 500%); /* Desde abajo-derecha */
     --end-rotate: -5deg;
-    animation-delay: 4s; /* 2. Ajustamos el retardo */
+    animation-delay: 5s; /* 2. Ajustamos el retardo */
 }
 
 /* 3. Estilos para el texto en la parte inferior de la imagen */
@@ -210,6 +220,27 @@ body {
 .wedding-info .text-en { display: none; }
 .wedding-info.lang-en .text-es { display: none; }
 .wedding-info.lang-en .text-en { display: inline;
+}
+
+/* 1 y 2. Alternar idioma con el ratón sobre el mensaje o el botón */
+/* Cuando el texto es español (estado por defecto), al pasar el ratón se muestra en inglés */
+.wedding-info:not(.lang-en) .wedding-message:hover .text-es,
+.wedding-info:not(.lang-en) .memory-button:hover .text-es {
+    display: none;
+}
+.wedding-info:not(.lang-en) .wedding-message:hover .text-en,
+.wedding-info:not(.lang-en) .memory-button:hover .text-en {
+    display: inline;
+}
+
+/* Cuando el texto es inglés (por la animación), al pasar el ratón se muestra en español */
+.wedding-info.lang-en .wedding-message:hover .text-en,
+.wedding-info.lang-en .memory-button:hover .text-en {
+    display: none;
+}
+.wedding-info.lang-en .wedding-message:hover .text-es,
+.wedding-info.lang-en .memory-button:hover .text-es {
+    display: inline;
 }
 
 /* 2. Estilos y animación para el botón "Dejar un recuerdo" */
@@ -322,6 +353,15 @@ body {
     outline: 2px solid #f0e68c;
 }
 
+.char-counter {
+    width: 100%;
+    text-align: right;
+    font-size: 0.85em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
 .upload-section {
     display: flex;
     align-items: center;
@@ -389,6 +429,12 @@ body {
     color: #333;
 }
 
+.submit-button:hover {
+    background-color: #e9de82; /* Tono ligeramente más oscuro */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
 .back-button {
     background-color: transparent;
     color: white;
@@ -396,6 +442,46 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
+/* Estilos para la animación de confirmación */
+.confirmation-message {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(44, 62, 80, 0.95);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border-radius: 25px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.confirmation-message.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.confirmation-icon {
+    font-size: 5em;
+    line-height: 1;
+    transform: scale(0);
+}
+
+.confirmation-message.show .confirmation-icon {
+    animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+}
+
+.confirmation-message p {
+    font-size: 1.5em;
+    margin-top: 20px;
+    font-family: 'Dancing Script', cursive;
+}
 /* Responsive Design */
 @media (max-width: 768px) {
     .welcome-text {
@@ -415,5 +501,11 @@ body {
     }
     .welcome-text {
         font-size: 2.5rem;
+    }
+}
+
+@keyframes pop-in {
+    to {
+        transform: scale(1);
     }
 }
