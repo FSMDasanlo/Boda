@@ -35,11 +35,32 @@
             </div>
             <div class="card-face card-back">
                 <h2>Tu mensaje</h2>
-                <form action="#">
-                    <textarea placeholder="Escribe aquí tus mejores deseos..."></textarea>
+                <form id="memory-form">
+                    <input type="text" id="guest-name" class="name-input" placeholder="Tu nombre" required>
+                    <!-- 1. Controles de edición de texto -->
+                    <div class="editor-toolbar">
+                        <select id="font-name" title="Tipo de fuente">
+                            <option value="Lato">Normal</option>
+                            <option value="Dancing Script">Cursiva</option>
+                            <option value="Arial">Simple</option>
+                            <option value="Georgia">Serif</option>
+                        </select>
+                        <select id="font-size" title="Tamaño de fuente">
+                            <option value="3">Mediano</option>
+                            <option value="5">Grande</option>
+                            <option value="2">Pequeño</option>
+                        </select>
+                        <input type="color" id="font-color" value="#FFFFFF" title="Color de fuente">
+                    </div>
+                    <div id="message-box" class="editable" contenteditable="true" spellcheck="false"></div>
+                    <div class="upload-section">
+                        <button type="button" id="upload-photo-button">Añadir foto</button>
+                        <input type="file" id="photo-upload" accept="image/*" hidden multiple>
+                        <div id="image-preview-container"></div>
+                    </div>
                     <button type="submit" class="submit-button">Enviar Recuerdo</button>
                 </form>
-                <button class="back-button">Volver</button>
+                <button type="button" class="back-button">Volver</button>
             </div>
         </div>
     </main>
