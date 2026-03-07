@@ -56,7 +56,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fontNameSelect.addEventListener('change', () => applyStyle('fontName', fontNameSelect.value));
     fontSizeSelect.addEventListener('change', () => applyStyle('fontSize', fontSizeSelect.value));
-    fontColorInput.addEventListener('input', () => applyStyle('foreColor', fontColorInput.value));
+
+    // Manejo del color: Aplicar solo a selección o nuevo texto
+    fontColorInput.addEventListener('input', () => {
+        const newColor = fontColorInput.value;
+        applyStyle('foreColor', newColor);
+    });
+
+    // Sincronización inversa: Actualizar el selector de color según donde esté el cursor
+    const updateColorPicker = () => {
+        const color = document.queryCommandValue('foreColor');
+        // Convertir rgb(r, g, b) a hex #RRGGBB para que el input lo entienda
+        if (color && color.indexOf('rgb') !== -1) {
+            const rgb = color.match(/\d+/g);
+            if (rgb) {
+                const hex = "#" + 
+                    ("0" + parseInt(rgb[0], 10).toString(16)).slice(-2) +
+                    ("0" + parseInt(rgb[1], 10).toString(16)).slice(-2) +
+                    ("0" + parseInt(rgb[2], 10).toString(16)).slice(-2);
+                fontColorInput.value = hex;
+            }
+        }
+    };
+    messageBox.addEventListener('keyup', updateColorPicker);
+    messageBox.addEventListener('mouseup', updateColorPicker);
 
     // --- Lógica del contador de caracteres ---
     const MAX_CHARS = 500;
