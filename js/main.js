@@ -126,6 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const guestName = guestNameInput.value;
         const messageHTML = messageBox.innerHTML;
+        
+        const submitButton = memoryForm.querySelector('.submit-button');
 
         // Validación extra: Límite de caracteres
         if (messageBox.innerText.length > MAX_CHARS) {
@@ -150,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const submitButton = memoryForm.querySelector('.submit-button');
         submitButton.disabled = true;
         submitButton.textContent = 'Enviando...';
 

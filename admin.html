@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Recuerdos de la Boda</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="admin-body">
+    <div class="admin-container">
+        <h1>Galería de Recuerdos</h1>
+        <p id="total-counter" class="total-counter">Total mensajes: 0</p>
+        <div class="admin-controls">
+            <input type="text" id="search-input" class="search-bar" placeholder="Buscar por nombre...">
+            <button id="download-btn" class="download-btn">Descargar PDF</button>
+        </div>
+        <div id="gallery" class="gallery-grid">
+            <p style="text-align: center; width: 100%;">Cargando recuerdos...</p>
+        </div>
+        <div id="pagination" class="pagination-controls"></div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="/__/firebase/8.10.1/firebase-app.js"></script>
+    <script src="/__/firebase/8.10.1/firebase-firestore.js"></script>
+    <script src="/__/firebase/8.10.1/firebase-storage.js"></script>
+    <script src="/__/firebase/init.js"></script>
+    
+    <!-- Librería para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
