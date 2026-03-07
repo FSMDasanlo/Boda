@@ -101,7 +101,7 @@ body {
     right: 0;
     z-index: 20;
     text-align: center;
-    color: rgb(102, 160, 170);
+    color: rgb(130, 160, 160);
     text-shadow: 0 2px 5px rgba(0,0,0,0.6);
     font-family: 'Dancing Script', cursive;
     font-weight: 700;
@@ -151,7 +151,7 @@ body {
 
 /* Estilos y variables de animación para cada idioma */
 .lang-1 {
-    color: #ffffff;
+    color: #8dc3d2;
     font-size: 1.5em; /* La principal, más grande */
     z-index: 10;
     --start-transform: translate(-50%, -400%); /* Desde arriba */
