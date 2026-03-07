@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Reglas para la carpeta 'memories' donde se guardan las fotos
+    match /memories/{fileName} {
+      
+      // Cualquiera puede leer las imágenes
+      allow read: if true;
+      
+      // Cualquiera puede SUBIR una imagen si cumple estas condiciones:
+      allow write: if request.resource.size < 5 * 1024 * 1024 // El archivo debe ser menor de 5 MB
+                   && request.resource.contentType.matches('image/.*'); // El archivo debe ser de tipo imagen
+    }
+  }
+}

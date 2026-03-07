@@ -2,7 +2,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Firebase se inicializa automáticamente gracias a /__/firebase/init.js
     // cuando el sitio está desplegado en Firebase Hosting.
     const db = firebase.firestore(); // Ahora puedes usar firebase directamente
+
     const storage = firebase.storage(); // Y también storage
+    
+    // --- Conectar a Emuladores si se está en entorno local ---
+    // Esto permite probar en tu PC sin tocar la base de datos real
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        console.log("Entorno local detectado. Usando emuladores.");
+        db.useEmulator("localhost", 8080);
+        storage.useEmulator("localhost", 9199);
+    }
 
     // --- Selectores de elementos ---
     const weddingInfo = document.querySelector('.wedding-info');
