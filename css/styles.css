@@ -503,6 +503,10 @@ body {
     .welcome-text {
         font-size: 2.5rem;
     }
+
+    .card-front {
+        background-size: 100% 100%; /* Estira la imagen a lo alto y ancho (puede deformarse) */
+    }
 }
 
 @keyframes pop-in {
