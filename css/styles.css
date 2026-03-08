@@ -14,7 +14,6 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    perspective: 1500px; /* Añadimos perspectiva para el efecto 3D */
     padding: 20px;
 }
 
@@ -23,6 +22,7 @@ body {
     width: 100%;
     max-width: 400px;
     height: 700px;
+    perspective: 1500px; /* Añadimos perspectiva para el efecto 3D */
     position: relative;
     overflow: hidden;
     border-radius: 25px;
