@@ -4,8 +4,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const gallery = document.getElementById('gallery');
     const searchInput = document.getElementById('search-input');
     const downloadBtn = document.getElementById('download-btn');
+    const filterChallengesBtn = document.getElementById('filter-challenges-btn');
+    const challengesAdminBtn = document.getElementById('challenges-admin-btn');
+    const challengesAdminSection = document.getElementById('challenges-admin-section');
+    const closeChallengesAdminBtn = document.getElementById('close-challenges-admin-btn');
+    const challengesList = document.getElementById('challenges-list');
+    const newChallengeEsInput = document.getElementById('new-challenge-es');
+    const newChallengeEnInput = document.getElementById('new-challenge-en');
+    const addChallengeBtn = document.getElementById('add-challenge-btn');
     const totalCounter = document.getElementById('total-counter');
     const paginationContainer = document.getElementById('pagination');
+    
+    // Elementos del Modal
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalCaption = document.getElementById('modal-caption');
+    const closeModal = document.querySelector('.close-modal');
 
     // --- Conectar a Emuladores si se está en entorno local ---
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
@@ -25,15 +39,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let allMemories = []; // Almacén local de todos los recuerdos
     const ITEMS_PER_PAGE = 9; // Número de tarjetas por página
     let currentPage = 1;
+    let showOnlyChallenges = false; // Estado del filtro
 
     // Función para filtrar y pintar la galería
     const renderGallery = () => {
         const searchTerm = searchInput.value.toLowerCase();
         
-        // Filtramos los recuerdos que coincidan con el nombre
-        const filteredMemories = allMemories.filter(item => 
-            item.data.guestName.toLowerCase().includes(searchTerm)
-        );
+        // Filtramos los recuerdos que coincidan con el nombre Y el filtro de retos
+        const filteredMemories = allMemories.filter(item => {
+            const matchesSearch = item.data.guestName.toLowerCase().includes(searchTerm);
+            const matchesFilter = showOnlyChallenges ? item.data.isChallengeProof : true;
+            return matchesSearch && matchesFilter;
+        });
 
         // --- Lógica de Paginación ---
         const totalPages = Math.ceil(filteredMemories.length / ITEMS_PER_PAGE);
@@ -66,14 +83,24 @@ document.addEventListener('DOMContentLoaded', () => {
             // Generar HTML de imágenes si las hay
             let imagesHtml = '';
             if (data.imageUrls && data.imageUrls.length > 0) {
+                const imgClass = data.isChallengeProof ? 'challenge-proof-img' : '';
+                // Si es prueba de reto, guardamos el texto del reto en data-challenge y quitamos el onclick inline
+                const clickAction = data.isChallengeProof ? '' : `onclick="window.open(this.src, '_blank')"`;
+                const dataAttr = data.isChallengeProof ? `data-challenge="${escapeHtml(data.challenge || '')}"` : '';
                 imagesHtml = `<div class="memory-images">
-                    ${data.imageUrls.map(url => `<img src="${url}" crossorigin="anonymous" onclick="window.open(this.src, '_blank')" alt="Foto recuerdo">`).join('')}
+                    ${data.imageUrls.map(url => `<img src="${url}" class="${imgClass}" ${dataAttr} crossorigin="anonymous" ${clickAction} alt="Foto recuerdo">`).join('')}
                 </div>`;
+            }
+
+            // Indicador de reto
+            let challengeIndicator = '';
+            if (data.challenge) {
+                challengeIndicator = `<span class="challenge-indicator" title="Reto: ${escapeHtml(data.challenge)}">🏆</span>`;
             }
 
             card.innerHTML = `
                 <div class="memory-header">
-                    <h3>${escapeHtml(data.guestName)}</h3>
+                    <h3>${escapeHtml(data.guestName)} ${challengeIndicator}</h3>
                     <div class="header-actions">
                         <span class="memory-date">${dateStr}</span>
                         <button class="delete-btn">Borrar</button>
@@ -92,6 +119,144 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         renderPagination(totalPages);
+    };
+
+    // --- Lógica del Modal de Retos ---
+    // Event delegation para las imágenes de retos (ya que se crean dinámicamente)
+    gallery.addEventListener('click', (e) => {
+        if (e.target.classList.contains('challenge-proof-img')) {
+            modal.style.display = "block";
+            modalImg.src = e.target.src;
+            // Usamos dataset para recuperar el texto y textContent para seguridad
+            modalCaption.textContent = e.target.dataset.challenge; 
+        }
+    });
+
+    closeModal.onclick = () => { modal.style.display = "none"; }
+    
+    window.onclick = (event) => {
+        if (event.target == modal) modal.style.display = "none";
+    }
+
+    // --- Lógica de Administración de Retos ---
+
+    // Toggle para mostrar/ocultar la sección de retos
+    challengesAdminBtn.addEventListener('click', () => {
+        const isHidden = challengesAdminSection.style.display === 'none';
+        challengesAdminSection.style.display = isHidden ? 'block' : 'none';
+        if (isHidden) {
+            loadChallenges();
+        }
+    });
+
+    // Botón para cerrar la sección de retos
+    closeChallengesAdminBtn.addEventListener('click', () => {
+        challengesAdminSection.style.display = 'none';
+    });
+
+    // Añadir un nuevo reto
+    addChallengeBtn.addEventListener('click', async () => {
+        const textEs = newChallengeEsInput.value.trim();
+        const textEn = newChallengeEnInput.value.trim();
+        if (!textEs || !textEn) {
+            alert('Ambos campos del reto son obligatorios.');
+            return;
+        }
+        try {
+            await db.collection('challenges').add({
+                text_es: textEs,
+                text_en: textEn,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            newChallengeEsInput.value = '';
+            newChallengeEnInput.value = '';
+            // El listener onSnapshot se encargará de refrescar la lista
+        } catch (error) {
+            console.error("Error añadiendo reto:", error);
+            alert("Error al añadir el reto.");
+        }
+    });
+
+    // Cargar y mostrar la lista de retos
+    const loadChallenges = () => {
+        db.collection('challenges').orderBy('createdAt').onSnapshot(snapshot => {
+            if (snapshot.empty) {
+                challengesList.innerHTML = '<p>No hay retos definidos. Puedes añadirlos desde el formulario de abajo.</p>';
+                return;
+            }
+            challengesList.innerHTML = '';
+            snapshot.forEach(doc => {
+                const challenge = doc.data();
+                const challengeId = doc.id;
+                
+                // Buscar quién ha completado este reto
+                const combinedText = `${challenge.text_es}\n${challenge.text_en}`;
+                const completedBy = allMemories
+                    .filter(m => m.data.isChallengeProof && m.data.challenge === combinedText)
+                    .map(m => `<b>${escapeHtml(m.data.guestName)}</b>`);
+                
+                const completedHtml = completedBy.length > 0 
+                    ? `<div class="challenge-completed-list">✅ Completado por: ${completedBy.join(', ')}</div>` 
+                    : '';
+
+                const item = document.createElement('div');
+                item.className = 'challenge-item';
+                item.innerHTML = `
+                    <div class="challenge-item-text">
+                        <p>${escapeHtml(challenge.text_es)}</p>
+                        <p><em>${escapeHtml(challenge.text_en)}</em></p>
+                        ${completedHtml}
+                    </div>
+                    <div class="challenge-item-actions">
+                        <button class="edit-challenge-btn delete-btn" style="background-color: #3498db;">Editar</button>
+                        <button class="delete-challenge-btn delete-btn">Borrar</button>
+                    </div>
+                `;
+                item.querySelector('.delete-challenge-btn').addEventListener('click', () => deleteChallenge(challengeId));
+                item.querySelector('.edit-challenge-btn').addEventListener('click', (e) => editChallenge(e.target, challengeId, challenge));
+                challengesList.appendChild(item);
+            });
+        });
+    };
+
+    // Borrar un reto
+    const deleteChallenge = async (id) => {
+        if (!confirm('¿Seguro que quieres borrar este reto?')) return;
+        try {
+            await db.collection('challenges').doc(id).delete();
+        } catch (error) {
+            console.error("Error borrando reto:", error);
+            alert("Error al borrar el reto.");
+        }
+    };
+
+    // Habilitar edición inline de un reto
+    const editChallenge = (button, id, data) => {
+        const item = button.closest('.challenge-item');
+        const textContainer = item.querySelector('.challenge-item-text');
+        textContainer.innerHTML = `
+            <textarea class="edit-es">${data.text_es}</textarea>
+            <textarea class="edit-en">${data.text_en}</textarea>
+        `;
+        button.textContent = 'Guardar';
+        button.onclick = () => saveChallenge(id, item);
+    };
+
+    // Guardar los cambios de un reto editado
+    const saveChallenge = async (id, item) => {
+        const newTextEs = item.querySelector('.edit-es').value.trim();
+        const newTextEn = item.querySelector('.edit-en').value.trim();
+        if (!newTextEs || !newTextEn) {
+            alert('Ambos campos son obligatorios.');
+            return;
+        }
+        try {
+            await db.collection('challenges').doc(id).update({ text_es: newTextEs, text_en: newTextEn });
+            // onSnapshot refrescará la vista, no es necesario hacer nada más.
+        } catch (error) {
+            console.error("Error guardando reto:", error);
+            alert("Error al guardar el reto.");
+        }
     };
 
     // Función para pintar los controles de paginación
@@ -131,6 +296,14 @@ document.addEventListener('DOMContentLoaded', () => {
         renderGallery();
     });
 
+    // Escuchar cambios en el botón de filtro de retos
+    filterChallengesBtn.addEventListener('click', () => {
+        showOnlyChallenges = !showOnlyChallenges;
+        filterChallengesBtn.classList.toggle('active');
+        currentPage = 1; // Resetear a la primera página
+        renderGallery();
+    });
+
     // --- Exportar a PDF ---
     downloadBtn.addEventListener('click', () => {
         const element = document.getElementById('gallery');
@@ -152,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Cargar recuerdos en tiempo real ---
-    db.collection('memories').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
+    db.collection('memories').orderBy('guestName', 'asc').onSnapshot((snapshot) => {
         // Guardamos los datos en nuestra variable local
         allMemories = snapshot.docs.map(doc => ({
             id: doc.id,

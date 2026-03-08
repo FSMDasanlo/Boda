@@ -34,18 +34,16 @@
                 </div>
             </div>
             <div class="card-face card-back">
-                <div id="confirmation-message" class="confirmation-message">
-                    <div class="confirmation-icon">&#10004;</div>
-                    <p>¡Recuerdo enviado!</p>
-                </div>
+                <div id="confirmation-message" class="confirmation-message"></div>
                 <h2>Tu mensaje</h2>
                 <form id="memory-form">
                     <input type="text" id="guest-name" class="name-input" placeholder="Tu nombre" required>
                     <!-- 1. Controles de edición de texto -->
                     <div class="editor-toolbar">
+                        <button type="button" id="bold-btn" class="toolbar-btn" title="Negrita"><b>B</b></button>
+                        <button type="button" id="italic-btn" class="toolbar-btn" title="Cursiva"><i>I</i></button>
                         <select id="font-name" title="Tipo de fuente">
                             <option value="Lato">Normal</option>
-                            <option value="Dancing Script">Cursiva</option>
                             <option value="Arial">Simple</option>
                             <option value="Georgia">Serif</option>
                         </select>
@@ -63,7 +61,7 @@
                         <input type="file" id="photo-upload" accept="image/*" hidden multiple>
                         <div id="image-preview-container"></div>
                     </div>
-                    <button type="submit" class="submit-button">Enviar Recuerdo</button>
+                    <button type="submit" class="submit-button">Enviar</button>
                 </form>
                 <button type="button" class="back-button">Volver</button>
             </div>

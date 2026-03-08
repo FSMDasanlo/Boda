@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Tienes un Reto!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="challenge-body">
+    <div class="challenge-container">
+        <h1>¡Acepta el Reto!</h1>
+        <div class="challenge-card">
+            <p id="challenge-text">Cargando reto...</p>
+        </div>
+
+        <!-- Sección para subir la prueba del reto -->
+        <div id="challenge-upload-section" class="challenge-upload-section">
+            <p>¡Sube la prueba del delito!</p>
+            <input type="file" id="challenge-photo" accept="image/*" hidden>
+            <button id="select-photo-btn" class="submit-button photo-btn">📸 Subir Foto</button>
+            <div id="preview-container"></div>
+            <button id="confirm-upload-btn" class="submit-button confirm-btn" style="display: none;">Enviar Prueba</button>
+        </div>
+
+        <a href="index.html" class="back-to-main-btn">Volver a la web</a>
+    </div>
+    <!-- Firebase SDKs -->
+    <script src="/__/firebase/8.10.1/firebase-app.js"></script>
+    <script src="/__/firebase/8.10.1/firebase-firestore.js"></script>
+    <script src="/__/firebase/8.10.1/firebase-storage.js"></script>
+    <script src="/__/firebase/init.js"></script>
+    <script src="js/retos.js"></script>
+</body>
+</html>

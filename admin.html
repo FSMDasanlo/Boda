@@ -9,12 +9,29 @@
 </head>
 <body class="admin-body">
     <div class="admin-container">
-        <h1>Galería de Recuerdos</h1>
+        <div class="admin-header-container">
+            <h1>Galería de Recuerdos</h1>
+            <button id="challenges-admin-btn" class="admin-action-btn" title="Administrar Retos">⚙️</button>
+        </div>
         <p id="total-counter" class="total-counter">Total mensajes: 0</p>
         <div class="admin-controls">
             <input type="text" id="search-input" class="search-bar" placeholder="Buscar por nombre...">
+            <button id="filter-challenges-btn" class="filter-btn">Ver solo Pruebas 🏆</button>
             <button id="download-btn" class="download-btn">Descargar PDF</button>
         </div>
+
+        <div id="challenges-admin-section" class="challenges-admin-section" style="display: none;">
+            <button id="close-challenges-admin-btn" class="close-admin-section-btn">&times;</button>
+            <h2>Gestión de Retos</h2>
+            <div id="challenges-list" class="challenges-list"></div>
+            <div class="add-challenge-form">
+                <h3>Añadir Nuevo Reto</h3>
+                <textarea id="new-challenge-es" placeholder="Texto del reto en español"></textarea>
+                <textarea id="new-challenge-en" placeholder="Texto del reto en inglés"></textarea>
+                <button id="add-challenge-btn" class="admin-action-btn">Añadir Reto</button>
+            </div>
+        </div>
+
         <div id="gallery" class="gallery-grid">
             <p style="text-align: center; width: 100%;">Cargando recuerdos...</p>
         </div>
@@ -29,6 +46,15 @@
     
     <!-- Librería para generar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Modal para ver retos en grande -->
+    <div id="image-modal" class="modal">
+        <span class="close-modal">&times;</span>
+        <div class="modal-content">
+            <img id="modal-img" src="">
+            <div id="modal-caption"></div>
+        </div>
+    </div>
 
     <script src="js/admin.js"></script>
 </body>
