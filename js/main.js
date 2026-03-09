@@ -242,8 +242,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Determinar si hay un reto antes de guardar
             let challenge = null;
-            if (newCount % 5 === 0) {
-                const challengeIndex = (newCount / 5) - 1;
+            // if (newCount % 5 === 0) { // Lógica original
+            if (true) { // Lógica de desarrollo: Todos tienen reto
+                // const challengeIndex = (newCount / 5) - 1;
+                const challengeIndex = newCount - 1;
                 challenge = challenges[challengeIndex % challenges.length];
             }
 
@@ -254,23 +256,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmationMessage.innerHTML = `
                     <div class="confirmation-icon-loading"></div>
                     <h2>¡SORPRESA, ${friendlyGuestName}!</h2>
-                    <p>Eres el invitado n.º ${newCount} y...</p>
+                    <p>Por ser tan simpátic@...</p>
+                    <p><em>(For being so nice...)</em></p>
                     <p style="font-size: 1.5em; font-weight: bold; color: #f0e68c; margin: 10px 0;">¡TIENES UN RETO!</p>
-                    <p class="sending-info">Guardando tu mensaje para ver el reto...</p>
+                    <p style="font-size: 1.2em; font-weight: bold; color: #f0e68c; margin: 5px 0;">Wedding Guest Challenge!</p>
+                    <p class="sending-info">Guardando tu mensaje para ver el reto...<br><em style="opacity:0.8; font-size:0.9em;">Saving your message to see the challenge...</em></p>
                 `;
             } else {
+                const savingInfoEs = `Guardando ${filesToUpload.length > 0 ? `tus ${filesToUpload.length} foto(s) y ` : ''}tu mensaje...`;
+                const savingInfoEn = `Saving ${filesToUpload.length > 0 ? `your ${filesToUpload.length} photo(s) and ` : ''}your message...`;
                 confirmationMessage.innerHTML = `
                     <div class="confirmation-icon-loading"></div>
                     <h2>¡Gracias, ${friendlyGuestName}!</h2>
                     <p>Eres la persona n.º ${newCount} en dejarnos un recuerdo.</p>
-                    <p class="sending-info">Guardando ${filesToUpload.length > 0 ? `tus ${filesToUpload.length} foto(s) y ` : ''}tu mensaje...</p>
+                    <p class="sending-info">${savingInfoEs}<br><em style="opacity:0.8; font-size:0.9em;">${savingInfoEn}</em></p>
                 `;
             }
 
-            // 3. Iniciar el guardado en segundo plano y un temporizador mínimo de 2 segundos.
-            // Esto asegura que el mensaje de "Gracias" se vea al menos ese tiempo.
+            // 3. Iniciar el guardado en segundo plano y un temporizador mínimo de 5 segundos.
+            // Esto asegura que el mensaje de "Gracias" o "¡Reto!" se vea al menos ese tiempo.
             const savePromise = saveMemory(guestName, messageHTML, filesToUpload, challenge);
-            const timerPromise = new Promise(resolve => setTimeout(resolve, 2000));
+            const timerPromise = new Promise(resolve => setTimeout(resolve, 5000));
 
             await Promise.all([savePromise, timerPromise]);
 
@@ -282,7 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmationMessage.innerHTML = `
                     <div class="confirmation-icon" style="color: #f0e68c;">&#11088;</div>
                     <h2>¡Recuerdo guardado!</h2>
-                    <p>Y por ser el recuerdo n.º ${newCount}... ¡tienes un reto!</p>
+                    <p>Por ser tan simpátic@, ¡Te ponemos un reto!</p>
+                    <p><em>(For being so nice, here is a challenge!)</em></p>
                     <button type="button" class="submit-button" style="margin-top: 20px;" onclick="window.location.href='retos.html?reto=${encodedChallenge}&name=${encodedName}'">Ver mi reto</button>
                 `;
                 const icon = confirmationMessage.querySelector('.confirmation-icon');
@@ -292,21 +299,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 resetForm(false);
 
             } else {
-                // Flujo normal sin reto
+                // Flujo normal sin reto: El mensaje se queda hasta que el usuario pulsa el botón
                 confirmationMessage.innerHTML = `
                     <div class="confirmation-icon">&#10004;</div>
                     <h2>¡Recuerdo guardado!</h2>
                     <p>Gracias por formar parte de nuestro día.</p>
+                    <p style="font-size: 1em; opacity: 0.8; margin-top: 5px;"><em>Memory saved! Thank you for being part of our day.</em></p>
+                    <button type="button" id="close-success-btn" class="submit-button" style="margin-top: 20px;">Hecho / Done</button>
                 `;
                 const icon = confirmationMessage.querySelector('.confirmation-icon');
                 if (icon) icon.style.animation = 'pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards';
 
-                // 5. Resetear el formulario y volver a la cara principal
-                setTimeout(() => {
+                // 5. Añadimos un listener al nuevo botón para cerrar y resetear
+                document.getElementById('close-success-btn').addEventListener('click', () => {
                     confirmationMessage.classList.remove('show');
-                    resetForm(true);
-                    card.classList.remove('is-flipped');
-                }, 3000);
+                    // Pequeño delay para que la transición de opacidad termine antes de girar
+                    setTimeout(() => {
+                        resetForm(true);
+                        card.classList.remove('is-flipped');
+                    }, 500); // 500ms coincide con la transición de opacidad del CSS
+                });
+
+                // Reseteamos el formulario en segundo plano, pero no el botón de envío.
+                resetForm(false);
             }
 
         } catch (error) {

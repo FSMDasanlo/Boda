@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectPhotoBtn = document.getElementById('select-photo-btn');
     const confirmBtn = document.getElementById('confirm-upload-btn');
     const previewContainer = document.getElementById('preview-container');
+    const skipChallengeBtn = document.querySelector('.skip-challenge-btn');
 
     const params = new URLSearchParams(window.location.search);
     const reto = params.get('reto');
@@ -23,10 +24,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (challengeTextElement) {
         if (reto) {
             challengeTextElement.innerHTML = reto.replace(/\n/g, '<br><br>');
+            // Si hay reto, mostramos la sección de subida Y el botón de saltar
             if (uploadSection) uploadSection.style.display = 'block';
+            if (skipChallengeBtn) skipChallengeBtn.style.display = 'inline-block';
         } else {
             challengeTextElement.textContent = 'Parece que no hay ningún reto asignado. ¡Disfruta de la fiesta!';
+            // Si no hay reto, nos aseguramos de que todo esté oculto
             if (uploadSection) uploadSection.style.display = 'none';
+            if (skipChallengeBtn) skipChallengeBtn.style.display = 'none';
         }
     }
 
@@ -44,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onload = (ev) => {
                 previewContainer.innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
                 confirmBtn.style.display = 'inline-block';
-                selectPhotoBtn.textContent = 'Cambiar foto';
+                selectPhotoBtn.textContent = 'Cambiar foto / Change photo';
             };
             reader.readAsDataURL(selectedFile);
         }
@@ -58,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         confirmBtn.disabled = true;
-        confirmBtn.textContent = 'Subiendo...';
+        confirmBtn.textContent = 'Subiendo... / Uploading...';
 
         try {
             // 1. Subir foto a Storage
@@ -71,21 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
             // 2. Guardar en Firestore como un nuevo recuerdo especial
             await db.collection('memories').add({
                 guestName: guestName,
-                messageHTML: `<strong>¡Reto completado!</strong><br><br><em>${reto.replace(/\n/g, ' ')}</em>`,
+                messageHTML: `<strong>¡Reto completado! / Challenge complete!</strong><br><br><em>${reto.replace(/\n/g, ' ')}</em>`,
                 imageUrls: [downloadURL],
                 challenge: reto,
                 isChallengeProof: true, // Marca especial para identificarlo
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            alert('¡Prueba subida con éxito! Eres un crack.');
+            alert('¡Prueba subida con éxito! Eres un crack.\n\nProof uploaded successfully! You rock.');
             window.location.href = 'index.html';
 
         } catch (error) {
             console.error("Error al subir prueba:", error);
-            alert('Hubo un error al subir la foto. Inténtalo de nuevo.');
+            alert('Hubo un error al subir la foto. Inténtalo de nuevo.\n\nThere was an error uploading the photo. Please try again.');
             confirmBtn.disabled = false;
-            confirmBtn.textContent = 'Enviar Prueba';
+            confirmBtn.textContent = 'Enviar Prueba / Send Proof';
         }
     });
 });

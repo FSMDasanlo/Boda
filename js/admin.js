@@ -300,6 +300,12 @@ document.addEventListener('DOMContentLoaded', () => {
     filterChallengesBtn.addEventListener('click', () => {
         showOnlyChallenges = !showOnlyChallenges;
         filterChallengesBtn.classList.toggle('active');
+        if (showOnlyChallenges) {
+            filterChallengesBtn.textContent = 'Ver todo';
+        } else {
+            // Usamos innerHTML para poder incluir el emoji
+            filterChallengesBtn.innerHTML = 'Ver solo Pruebas 🏆';
+        }
         currentPage = 1; // Resetear a la primera página
         renderGallery();
     });

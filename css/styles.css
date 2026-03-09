@@ -995,26 +995,25 @@ body.generating-pdf .pagination-controls {
     font-weight: 400;
 }
 
-.back-to-main-btn {
+.skip-challenge-btn {
     display: inline-block;
     margin-top: 40px;
-    padding: 12px 30px;
-    background-color: #f0e68c;
-    color: #333;
-    border: none;
+    padding: 10px 25px;
+    background: transparent;
+    border: 2px solid #f0e68c; /* Color dorado, más visible */
+    color: #f0e68c; /* Color dorado, más visible */
     border-radius: 50px;
     text-decoration: none;
     font-family: 'Lato', sans-serif;
     font-weight: 700;
-    font-size: 1em;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-size: 1em; /* Añadido para asegurar un tamaño consistente */
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.back-to-main-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+.skip-challenge-btn:hover {
+    background: #f0e68c; /* Fondo dorado al pasar el ratón */
+    color: #2c3e50; /* Texto oscuro para contraste */
 }
 
 /* --- Sección de subida en Retos --- */

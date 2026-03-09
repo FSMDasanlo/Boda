@@ -9,21 +9,21 @@
 </head>
 <body class="challenge-body">
     <div class="challenge-container">
-        <h1>¡Acepta el Reto!</h1>
+        <h1>¡Acepta el Reto! / Take the Challenge!</h1>
         <div class="challenge-card">
             <p id="challenge-text">Cargando reto...</p>
         </div>
 
+        <a href="index.html" class="skip-challenge-btn" style="display: none;">Saltar Reto / Skip Challenge</a>
+
         <!-- Sección para subir la prueba del reto -->
         <div id="challenge-upload-section" class="challenge-upload-section">
-            <p>¡Sube la prueba del delito!</p>
+            <p>¡Sube la prueba del delito! / Upload your proof!</p>
             <input type="file" id="challenge-photo" accept="image/*" hidden>
-            <button id="select-photo-btn" class="submit-button photo-btn">📸 Subir Foto</button>
+            <button id="select-photo-btn" class="submit-button photo-btn">📸 Subir Foto / Upload Photo</button>
             <div id="preview-container"></div>
-            <button id="confirm-upload-btn" class="submit-button confirm-btn" style="display: none;">Enviar Prueba</button>
+            <button id="confirm-upload-btn" class="submit-button confirm-btn" style="display: none;">Enviar Prueba / Send Proof</button>
         </div>
-
-        <a href="index.html" class="back-to-main-btn">Volver a la web</a>
     </div>
     <!-- Firebase SDKs -->
     <script src="/__/firebase/8.10.1/firebase-app.js"></script>
