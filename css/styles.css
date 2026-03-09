@@ -152,8 +152,8 @@ body {
     opacity: 0; /* Inician ocultas */
     /* 1. Animación más lenta y secuencial */
     /* Descomponemos la animación para que el 'animation-delay' de cada clase no se sobreescriba */
-    animation-name: fly-stay-fade;
-    animation-duration: 1s; /* 2. Reducimos la duración a la mitad */
+    animation-name: fly-stay-fade; /* Aumentamos la duración para que se lean mejor */
+    animation-duration: 2s;
     animation-timing-function: ease-in-out;
     animation-fill-mode: forwards;
 }
@@ -172,28 +172,28 @@ body {
     color: #ffc0cb; /* Rosa pastel */
     --start-transform: translate(-250%, -70%); /* Desde la izquierda */
     --end-rotate: -15deg;
-    animation-delay: 2s; /* 2. Ajustamos el retardo */
+    animation-delay: 3s; /* Ajustamos el retardo para la nueva duración */
 }
 
 .lang-3 {
     color: #f0e68c; /* Caqui claro (dorado suave) */
     --start-transform: translate(150%, -30%); /* Desde la derecha */
     --end-rotate: 10deg;
-    animation-delay: 3s; /* 2. Ajustamos el retardo */
+    animation-delay: 5s; /* Ajustamos el retardo para la nueva duración */
 }
 
 .lang-4 {
     color: #add8e6; /* Azul claro */
     --start-transform: translate(-50%, 600%); /* Desde abajo */
     --end-rotate: 20deg;
-    animation-delay: 4s; /* 2. Ajustamos el retardo */
+    animation-delay: 7s; /* Ajustamos el retardo para la nueva duración */
 }
 
 .lang-5 {
     color: #98fb98; /* Verde pálido */
     --start-transform: translate(150%, 500%); /* Desde abajo-derecha */
     --end-rotate: -5deg;
-    animation-delay: 5s; /* 2. Ajustamos el retardo */
+    animation-delay: 9s; /* Ajustamos el retardo para la nueva duración */
 }
 
 /* 3. Estilos para el texto en la parte inferior de la imagen */
@@ -371,6 +371,43 @@ body {
     height: 30px;
     padding: 2px;
     cursor: pointer;
+}
+
+.emoji-container {
+    position: relative;
+}
+
+.emoji-panel {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    bottom: 110%; /* Posiciona el panel encima del botón */
+    right: 0;
+    background-color: #4a637e;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    padding: 10px;
+    width: 240px;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+    z-index: 110; /* Por encima de otros elementos del formulario */
+}
+
+.emoji-panel.show {
+    display: grid; /* Se muestra con JS */
+}
+
+.emoji-panel span {
+    cursor: pointer;
+    font-size: 1.5em;
+    text-align: center;
+    padding: 2px;
+    border-radius: 4px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.emoji-panel span:hover {
+    background-color: #5f7e9c;
+    transform: scale(1.1);
 }
 
 .editable {
@@ -661,6 +698,14 @@ body {
     break-inside: avoid; /* Evita que la tarjeta se corte en el PDF */
 }
 
+/* Borde dorado para las tarjetas que son pruebas de retos */
+.memory-card.challenge-proof-card {
+    border: 4px solid #C5B358; /* Tono dorado más apagado */
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1), 0 0 15px rgba(197, 179, 88, 0.6);
+    /* El padding se reduce para compensar el borde y mantener el contenido alineado */
+    padding: 16px;
+}
+
 .memory-header {
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
@@ -701,12 +746,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Borde dorado para las pruebas de retos */
-.memory-images img.challenge-proof-img {
-    border: 4px solid #ffd700; /* Dorado */
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-}
-
 .challenge-indicator {
     font-size: 1em;
     cursor: help; /* Indica que se puede interactuar (ver el título) */
@@ -739,6 +778,19 @@ body {
 
 .close-admin-section-btn:hover {
     color: #e74c3c;
+}
+
+/* Estilos para la sección de retos saltados (modal) */
+#skipped-challenges-section {
+    position: fixed; /* Para que flote sobre el contenido */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 600px;
+    z-index: 1050; /* Por encima de otros elementos */
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .challenges-admin-section h2 {
@@ -896,6 +948,29 @@ body {
     transform: scale(1.05);
 }
 
+#skipped-challenges-btn {
+    background: transparent;
+    border: 2px solid #e67e22; /* Naranja */
+    color: #e67e22;
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    font-size: 1.5em;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-left: 10px; /* Espacio respecto al otro botón */
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#skipped-challenges-btn:hover {
+    background: #e67e22;
+    color: white;
+    transform: scale(1.05);
+}
+
 .download-btn {
     background-color: #e74c3c; /* Rojo PDF */
     color: white;
@@ -997,23 +1072,23 @@ body.generating-pdf .pagination-controls {
 
 .skip-challenge-btn {
     display: inline-block;
-    margin-top: 40px;
-    padding: 10px 25px;
+    margin-top: 60px; /* Más espacio para empujarlo hacia abajo */
+    padding: 10px;
     background: transparent;
-    border: 2px solid #f0e68c; /* Color dorado, más visible */
-    color: #f0e68c; /* Color dorado, más visible */
-    border-radius: 50px;
+    border: none;
+    color: rgba(255, 255, 255, 0.6); /* Color menos prominente */
     text-decoration: none;
     font-family: 'Lato', sans-serif;
-    font-weight: 700;
-    font-size: 1em; /* Añadido para asegurar un tamaño consistente */
+    font-weight: 400; /* No negrita */
+    font-size: 0.9em; /* Más pequeño */
     cursor: pointer;
     transition: all 0.3s ease;
+    line-height: 1.5; /* Para el texto de dos líneas */
 }
 
 .skip-challenge-btn:hover {
-    background: #f0e68c; /* Fondo dorado al pasar el ratón */
-    color: #2c3e50; /* Texto oscuro para contraste */
+    color: #f0e68c; /* Al pasar el ratón, se ilumina un poco */
+    text-decoration: underline;
 }
 
 /* --- Sección de subida en Retos --- */

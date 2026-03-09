@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const boldButton = document.getElementById('bold-btn');
     const italicButton = document.getElementById('italic-btn');
     const fontColorInput = document.getElementById('font-color');
+    const emojiBtn = document.getElementById('emoji-btn');
+    const emojiPanel = document.getElementById('emoji-panel');
     const uploadPhotoButton = document.getElementById('upload-photo-button');
     const photoUploadInput = document.getElementById('photo-upload');
     const imagePreview = document.getElementById('image-preview-container');
@@ -67,6 +69,39 @@ document.addEventListener('DOMContentLoaded', () => {
     fontColorInput.addEventListener('input', () => {
         const newColor = fontColorInput.value;
         applyStyle('foreColor', newColor);
+    });
+
+    // --- Lógica del panel de Emojis ---
+    const emojis = ['❤️', '😂', '🎉', '🥳', '🥰', '🥂', '💃', '🕺', '✨', '👍', '🙏', '😊', '😎', '💖', '😍', '🔥'];
+
+    // Poblar el panel de emojis
+    emojis.forEach(emoji => {
+        const span = document.createElement('span');
+        span.textContent = emoji;
+        span.addEventListener('click', () => {
+            insertEmoji(emoji);
+        });
+        emojiPanel.appendChild(span);
+    });
+
+    // Función para insertar el emoji en el contenteditable
+    const insertEmoji = (emoji) => {
+        messageBox.focus();
+        document.execCommand('insertText', false, emoji);
+        emojiPanel.classList.remove('show');
+    };
+
+    // Mostrar/ocultar el panel
+    emojiBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Evita que el click se propague al documento y cierre el panel inmediatamente
+        emojiPanel.classList.toggle('show');
+    });
+
+    // Ocultar el panel si se hace click fuera
+    document.addEventListener('click', (e) => {
+        if (!emojiPanel.contains(e.target) && e.target !== emojiBtn) {
+            emojiPanel.classList.remove('show');
+        }
     });
 
     // Sincronización inversa: Actualizar el selector de color según donde esté el cursor
@@ -344,13 +379,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Lógica para cambiar el idioma del texto inferior ---
-    // Los tiempos se basan en los 'animation-delay' del CSS.
-    // Cada animación de palabra dura 1s.
+    // Ahora es un ciclo independiente y más lento para que dé tiempo a leer.
     if (weddingInfo) {
-        setTimeout(() => { weddingInfo.classList.add('lang-en'); }, 1000);
-        setTimeout(() => { weddingInfo.classList.remove('lang-en'); }, 2000);
-        setTimeout(() => { weddingInfo.classList.add('lang-en'); }, 3000);
-        setTimeout(() => { weddingInfo.classList.remove('lang-en'); }, 4000);
+        setInterval(() => {
+            weddingInfo.classList.toggle('lang-en');
+        }, 4000); // Cambia de idioma cada 4 segundos.
     }
 
     // --- Carga inicial de datos y asignación de eventos ---

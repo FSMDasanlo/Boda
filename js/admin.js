@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalImg = document.getElementById('modal-img');
     const modalCaption = document.getElementById('modal-caption');
     const closeModal = document.querySelector('.close-modal');
+    let skippedChallengesSection = null; // Para la sección de retos saltados
 
     // --- Conectar a Emuladores si se está en entorno local ---
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
@@ -35,6 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.innerHTML = "<h1 style='text-align:center; margin-top:50px;'>Acceso denegado</h1>";
         return;
     }
+
+    // --- Creación dinámica del botón para ver retos saltados ---
+    const skippedChallengesBtn = document.createElement('button');
+    skippedChallengesBtn.id = 'skipped-challenges-btn';
+    skippedChallengesBtn.title = 'Ver quién ha saltado los retos';
+    skippedChallengesBtn.innerHTML = '🐔';
+
+    if (challengesAdminBtn) {
+        challengesAdminBtn.insertAdjacentElement('afterend', skippedChallengesBtn);
+    }
+    skippedChallengesBtn.addEventListener('click', () => loadAndShowSkippedChallenges());
 
     let allMemories = []; // Almacén local de todos los recuerdos
     const ITEMS_PER_PAGE = 9; // Número de tarjetas por página
@@ -73,6 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
         memoriesToShow.forEach(({ id, data }) => {
             const card = document.createElement('div');
             card.className = 'memory-card';
+            if (data.isChallengeProof) {
+                card.classList.add('challenge-proof-card');
+            }
 
             // Formatear fecha
             let dateStr = 'Fecha desconocida';
@@ -234,12 +249,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const editChallenge = (button, id, data) => {
         const item = button.closest('.challenge-item');
         const textContainer = item.querySelector('.challenge-item-text');
-        textContainer.innerHTML = `
-            <textarea class="edit-es">${data.text_es}</textarea>
-            <textarea class="edit-en">${data.text_en}</textarea>
-        `;
-        button.textContent = 'Guardar';
-        button.onclick = () => saveChallenge(id, item);
+
+        // Si el botón es "Guardar", significa que estamos en modo edición.
+        if (button.textContent === 'Guardar') {
+            saveChallenge(id, item); // Guardamos los cambios.
+        } else {
+            // Si es "Editar", cambiamos la UI para permitir la edición.
+            textContainer.innerHTML = `
+                <textarea class="edit-es">${data.text_es}</textarea>
+                <textarea class="edit-en">${data.text_en}</textarea>
+            `;
+            button.textContent = 'Guardar';
+        }
     };
 
     // Guardar los cambios de un reto editado
@@ -256,6 +277,72 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Error guardando reto:", error);
             alert("Error al guardar el reto.");
+        }
+    };
+
+    // --- Lógica para la sección de Retos Saltados ---
+    const createSkippedChallengesSection = () => {
+        if (document.getElementById('skipped-challenges-section')) return document.getElementById('skipped-challenges-section');
+
+        const section = document.createElement('div');
+        section.id = 'skipped-challenges-section';
+        section.className = 'challenges-admin-section'; // Re-use existing style
+        section.style.display = 'none'; // Start hidden
+        section.innerHTML = `
+            <button id="close-skipped-challenges-btn" class="close-admin-section-btn">&times;</button>
+            <h2>🐔 Retos Saltados ("Gallinas")</h2>
+            <div id="skipped-challenges-list" class="challenges-list">
+                <p>Cargando...</p>
+            </div>
+        `;
+        document.body.appendChild(section); // Append to body to make it a modal-like panel
+
+        document.getElementById('close-skipped-challenges-btn').addEventListener('click', () => {
+            section.style.display = 'none';
+        });
+
+        return section;
+    };
+
+    const loadAndShowSkippedChallenges = async () => {
+        // Asegurarse de que la otra sección admin esté cerrada para no solapar
+        if (challengesAdminSection) challengesAdminSection.style.display = 'none';
+
+        if (!skippedChallengesSection) {
+            skippedChallengesSection = createSkippedChallengesSection();
+        }
+        
+        skippedChallengesSection.style.display = 'block';
+        const listContainer = skippedChallengesSection.querySelector('#skipped-challenges-list');
+        listContainer.innerHTML = '<p>Cargando...</p>';
+
+        try {
+            const snapshot = await db.collection('skipped_challenges').orderBy('skippedAt', 'desc').get();
+            
+            if (snapshot.empty) {
+                listContainer.innerHTML = '<p style="text-align:center; padding: 20px 0;">¡Nadie se ha rajado todavía! ¡Qué valientes!</p>';
+                return;
+            }
+
+            listContainer.innerHTML = ''; // Clear loading message
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.skippedAt ? new Date(data.skippedAt.seconds * 1000).toLocaleString() : 'Fecha desconocida';
+                
+                const item = document.createElement('div');
+                item.className = 'challenge-item'; // Re-use style
+                item.innerHTML = `
+                    <div class="challenge-item-text">
+                        <p><b>${escapeHtml(data.guestName)}</b> saltó un reto el ${date}</p>
+                        <p style="color: #7f8c8d; margin-top: 5px; font-size: 0.9em;"><em>${escapeHtml(data.challenge.replace(/\n/g, ' / '))}</em></p>
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+
+        } catch (error) {
+            console.error("Error cargando retos saltados:", error);
+            listContainer.innerHTML = '<p>Error al cargar la lista.</p>';
         }
     };
 

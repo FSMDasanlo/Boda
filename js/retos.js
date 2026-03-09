@@ -35,6 +35,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- Lógica para saltar el reto ---
+    if (skipChallengeBtn && guestName && reto) {
+        skipChallengeBtn.addEventListener('click', async (e) => {
+            e.preventDefault(); // Prevenir la navegación inmediata del href
+
+            // Ocultar inmediatamente los controles para evitar doble acción
+            if (uploadSection) uploadSection.style.display = 'none';
+            skipChallengeBtn.style.display = 'none';
+
+            // 1. Mostrar mensaje de "despedida" gracioso
+            const h1 = document.querySelector('.challenge-container h1');
+            const challengeCard = document.querySelector('.challenge-card');
+            
+            if (h1) h1.innerHTML = "¡Gallina! 🐔<br>Chicken!";
+            if (challengeCard) challengeCard.innerHTML = `<p style="font-size: 1.2em; line-height: 1.5;">No pasa nada, te queremos igual.<br><em>It's okay, we love you anyway.</em><br><br>Volviendo a la fiesta...</p>`;
+            
+            // 2. Registrar que se ha saltado el reto en Firestore (en segundo plano)
+            try {
+                await db.collection('skipped_challenges').add({
+                    guestName: guestName,
+                    challenge: reto,
+                    skippedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Error al registrar el reto saltado:", error);
+                // No es un error crítico para el usuario, continuamos
+            }
+
+            // 3. Redirigir a la página principal después de unos segundos
+            setTimeout(() => { window.location.href = 'index.html'; }, 4000);
+        });
+    }
+
     // --- Lógica de subida de foto ---
     let selectedFile = null;
 
@@ -49,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onload = (ev) => {
                 previewContainer.innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
                 confirmBtn.style.display = 'inline-block';
-                selectPhotoBtn.textContent = 'Cambiar foto / Change photo';
+                selectPhotoBtn.innerHTML = 'Cambiar foto<br>Change photo';
             };
             reader.readAsDataURL(selectedFile);
         }
@@ -63,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         confirmBtn.disabled = true;
-        confirmBtn.textContent = 'Subiendo... / Uploading...';
+        confirmBtn.innerHTML = 'Subiendo...<br>Uploading...';
 
         try {
             // 1. Subir foto a Storage
@@ -90,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error al subir prueba:", error);
             alert('Hubo un error al subir la foto. Inténtalo de nuevo.\n\nThere was an error uploading the photo. Please try again.');
             confirmBtn.disabled = false;
-            confirmBtn.textContent = 'Enviar Prueba / Send Proof';
+            confirmBtn.innerHTML = 'Enviar Prueba<br>Send Proof';
         }
     });
 });
