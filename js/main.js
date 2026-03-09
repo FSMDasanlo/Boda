@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmationMessage = document.getElementById('confirmation-message');
 
     let challenges = []; // Se rellenará desde Firestore
+    let savedRange = null; // Para guardar la posición del cursor en el editor
 
     if (!card || !flipButton || !backButton || !memoryForm) {
         console.error('Alguno de los elementos principales no se encontró.');
@@ -52,6 +53,27 @@ document.addEventListener('DOMContentLoaded', () => {
     backButton.addEventListener('click', flipCard);
 
     // --- Lógica del editor de texto ---
+    // Funciones para guardar y restaurar la selección del cursor.
+    // Esto es clave para que los emojis se inserten donde está el cursor y no al principio.
+    const saveSelection = () => {
+        if (window.getSelection) {
+            const sel = window.getSelection();
+            // Solo guardamos la selección si existe y está dentro del cuadro de mensaje
+            if (sel.rangeCount > 0 && messageBox.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+                savedRange = sel.getRangeAt(0);
+            }
+        }
+    };
+
+    const restoreSelection = () => {
+        messageBox.focus(); // Es crucial re-enfocar el editor primero
+        if (savedRange) {
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(savedRange);
+        }
+    };
+
     // Establece el color inicial del texto al cargar la página, tomando el valor del input
     messageBox.style.color = fontColorInput.value;
 
@@ -86,9 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para insertar el emoji en el contenteditable
     const insertEmoji = (emoji) => {
-        messageBox.focus();
+        restoreSelection(); // Restaura la posición del cursor antes de insertar
         document.execCommand('insertText', false, emoji);
         emojiPanel.classList.remove('show');
+        // Guardamos la nueva posición del cursor para la siguiente acción
+        saveSelection();
     };
 
     // Mostrar/ocultar el panel
@@ -122,6 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
     messageBox.addEventListener('keyup', updateColorPicker);
     messageBox.addEventListener('mouseup', updateColorPicker);
 
+    // Guardamos la selección del cursor cada vez que el usuario interactúa con el editor
+    messageBox.addEventListener('keyup', saveSelection);
+    messageBox.addEventListener('mouseup', saveSelection);
+    messageBox.addEventListener('focus', saveSelection);
+
     // --- Lógica del contador de caracteres ---
     const MAX_CHARS = 500;
     charCounter.textContent = `0 / ${MAX_CHARS}`; // Inicializar
@@ -144,43 +173,74 @@ document.addEventListener('DOMContentLoaded', () => {
         photoUploadInput.click(); // Abre el diálogo de archivo
     });
 
-    photoUploadInput.addEventListener('change', (event) => {
+    photoUploadInput.addEventListener('change', async (event) => {
         const newFiles = Array.from(event.target.files);
+
         if (selectedFiles.length + newFiles.length > 5) {
             alert('Puedes subir un máximo de 5 fotos.');
-            // Limpiamos el input para que el evento 'change' se dispare si eligen los mismos archivos de nuevo
             photoUploadInput.value = null;
             return;
         }
 
-        newFiles.forEach(file => {
-            // Añadimos el archivo a nuestro array
-            selectedFiles.push(file);
+        // Deshabilitar el botón mientras se procesan los archivos para dar feedback
+        uploadPhotoButton.disabled = true;
+        uploadPhotoButton.textContent = 'Procesando...';
 
-            // Creamos la vista previa
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const previewItem = document.createElement('div');
-                previewItem.classList.add('image-preview-item');
-                previewItem.style.backgroundImage = `url(${e.target.result})`;
+        for (const originalFile of newFiles) {
+            let fileToProcess = originalFile;
 
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.classList.add('remove-image-btn');
-                removeBtn.innerHTML = '&times;';
-                removeBtn.onclick = () => {
-                    previewItem.remove();
-                    const index = selectedFiles.indexOf(file);
-                    if (index > -1) {
-                        selectedFiles.splice(index, 1);
-                    }
+            // Comprimir si es una imagen (y no un GIF animado, que perdería la animación)
+            if (fileToProcess.type.startsWith('image/') && !fileToProcess.type.includes('gif')) {
+                const options = {
+                    maxSizeMB: 0.5,       // Comprimir a un máximo de 500KB
+                    maxWidthOrHeight: 1920, // Redimensionar si es más grande para no exceder HD
+                    useWebWorker: true,
                 };
 
-                previewItem.appendChild(removeBtn);
-                imagePreview.appendChild(previewItem);
+                try {
+                    const compressedBlob = await imageCompression(fileToProcess, options);
+                    // Recreamos el archivo (File) desde el Blob para mantener el nombre original
+                    fileToProcess = new File([compressedBlob], originalFile.name, {
+                        type: compressedBlob.type,
+                        lastModified: Date.now(),
+                    });
+                } catch (error) {
+                    console.error("Error al comprimir la imagen, se usará el original:", error);
+                    // Si falla la compresión, no hacemos nada y fileToProcess sigue siendo el archivo original
+                }
+            }
+
+            // Añadimos la foto (comprimida o no) a nuestro array
+            selectedFiles.push(fileToProcess);
+
+            // --- Creamos la vista previa de la imagen ---
+            const previewWrapper = document.createElement('div');
+            previewWrapper.classList.add('image-preview-item');
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.classList.add('remove-image-btn');
+            removeBtn.innerHTML = '&times;';
+            removeBtn.onclick = () => {
+                previewWrapper.remove();
+                const index = selectedFiles.indexOf(fileToProcess);
+                if (index > -1) {
+                    selectedFiles.splice(index, 1);
+                }
             };
-            reader.readAsDataURL(file);
-        });
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewWrapper.style.backgroundImage = `url(${e.target.result})`;
+            };
+            reader.readAsDataURL(fileToProcess);
+
+            previewWrapper.appendChild(removeBtn);
+            imagePreview.appendChild(previewWrapper);
+        }
+        // Reactivar el botón y limpiar el input para poder seleccionar más archivos
+        uploadPhotoButton.disabled = false;
+        uploadPhotoButton.textContent = 'Añadir foto';
         photoUploadInput.value = null;
     });
 
@@ -192,7 +252,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const uploadPromises = files.map(file => {
                 const filePath = `memories/${Date.now()}_${file.name}`;
                 const fileRef = storage.ref().child(filePath);
-                return fileRef.put(file).then(() => fileRef.getDownloadURL());
+                // Subimos el archivo (especificando el tipo para las reglas) y obtenemos la URL
+                return fileRef.put(file, { contentType: file.type }).then(() => fileRef.getDownloadURL());
             });
             imageUrls = await Promise.all(uploadPromises);
         }
@@ -201,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const memoryData = {
             guestName: guestName,
             messageHTML: messageHTML,
-            imageUrls: imageUrls,
+            imageUrls: imageUrls, // Volvemos a usar el campo original de URLs de imágenes
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         };
 
@@ -230,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
         charCounter.style.color = 'rgba(255, 255, 255, 0.7)';
         if (enableButton) {
             submitButton.disabled = false;
-            submitButton.textContent = 'Enviar Recuerdo';
+            submitButton.textContent = 'Enviar / Send';
         }
     };
 
@@ -373,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 confirmationMessage.classList.remove('show');
                 submitButton.disabled = false;
-                submitButton.textContent = 'Enviar Recuerdo';
+                submitButton.textContent = 'Enviar / Send';
             }, 5000);
         }
     };

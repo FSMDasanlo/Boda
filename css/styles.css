@@ -988,12 +988,6 @@ body {
     background-color: #c0392b;
 }
 
-/* Ocultar elementos innecesarios al generar el PDF */
-body.generating-pdf .delete-btn,
-body.generating-pdf .admin-controls {
-    display: none !important;
-}
-
 /* --- Paginación --- */
 .pagination-controls {
     display: flex;
@@ -1022,11 +1016,6 @@ body.generating-pdf .admin-controls {
 
 .pagination-controls button:not(:disabled):hover {
     background-color: #34495e;
-}
-
-/* Ocultar paginación en el PDF */
-body.generating-pdf .pagination-controls {
-    display: none !important;
 }
 
 /* --- Estilos para la página de Retos --- */

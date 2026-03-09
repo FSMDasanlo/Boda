@@ -73,15 +73,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     selectPhotoBtn.addEventListener('click', () => photoInput.click());
 
-    photoInput.addEventListener('change', (e) => {
+    photoInput.addEventListener('change', async (e) => {
         if (e.target.files && e.target.files[0]) {
-            selectedFile = e.target.files[0];
-            
+            const originalFile = e.target.files[0];
+
+            // Feedback visual mientras se procesa la imagen
+            selectPhotoBtn.disabled = true;
+            confirmBtn.style.display = 'none';
+            selectPhotoBtn.innerHTML = 'Procesando...<br>Processing...';
+            previewContainer.innerHTML = ''; // Limpiar vista previa anterior
+
+            let fileToUpload = originalFile;
+
+            // Comprimir si es una imagen (y no un GIF)
+            if (originalFile.type.startsWith('image/') && !originalFile.type.includes('gif')) {
+                const options = {
+                    maxSizeMB: 0.5,
+                    maxWidthOrHeight: 1920,
+                    useWebWorker: true,
+                };
+                try {
+                    const compressedBlob = await imageCompression(originalFile, options);
+                    fileToUpload = new File([compressedBlob], originalFile.name, {
+                        type: compressedBlob.type,
+                        lastModified: Date.now(),
+                    });
+                } catch (error) {
+                    console.error("Error al comprimir la imagen, se usará el original:", error);
+                }
+            }
+
+            selectedFile = fileToUpload; // Guardar el archivo (comprimido o no)
+
             // Mostrar vista previa
             const reader = new FileReader();
             reader.onload = (ev) => {
                 previewContainer.innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
                 confirmBtn.style.display = 'inline-block';
+                selectPhotoBtn.disabled = false;
                 selectPhotoBtn.innerHTML = 'Cambiar foto<br>Change photo';
             };
             reader.readAsDataURL(selectedFile);
@@ -103,7 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // SOLUCIÓN: Usamos la carpeta 'memories' que ya tiene permisos de escritura públicos.
             const filePath = `memories/${Date.now()}_challenge_${selectedFile.name}`;
             const fileRef = storage.ref().child(filePath);
-            await fileRef.put(selectedFile);
+            // AÑADIDO: Especificamos el tipo de contenido para que las reglas de seguridad funcionen.
+            await fileRef.put(selectedFile, { contentType: selectedFile.type });
             const downloadURL = await fileRef.getDownloadURL();
 
             // 2. Guardar en Firestore como un nuevo recuerdo especial
@@ -112,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 messageHTML: `<strong>¡Reto completado! / Challenge complete!</strong><br><br><em>${reto.replace(/\n/g, ' ')}</em>`,
                 imageUrls: [downloadURL],
                 challenge: reto,
-                isChallengeProof: true, // Marca especial para identificarlo
+                isChallengeProof: true,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 

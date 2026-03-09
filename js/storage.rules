@@ -1,0 +1,18 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Permite que cualquiera pueda LEER (ver) cualquier archivo.
+    // Esto es necesario para que la galería de admin y las vistas previas funcionen.
+    match /{allPaths=**} {
+      allow read;
+    }
+
+    // Permite que cualquiera pueda ESCRIBIR (subir) archivos, pero con condiciones.
+    match /memories/{fileName} {
+      allow write: if
+        request.resource.size < 20 * 1024 * 1024 &&
+        (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*'));
+    }
+  }
+}

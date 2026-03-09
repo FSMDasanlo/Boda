@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¡Nos casamos!</title>
+    <title>¡Lo celebramos!</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
@@ -35,7 +35,7 @@
             </div>
             <div class="card-face card-back">
                 <div id="confirmation-message" class="confirmation-message"></div>
-                <h2>Tu mensaje</h2>
+                <h2>Mensaje / Message</h2>
                 <form id="memory-form">
                     <input type="text" id="guest-name" class="name-input" placeholder="Tu nombre" required>
                     <!-- 1. Controles de edición de texto -->
@@ -65,9 +65,9 @@
                         <input type="file" id="photo-upload" accept="image/*" hidden multiple>
                         <div id="image-preview-container"></div>
                     </div>
-                    <button type="submit" class="submit-button">Enviar</button>
+                    <button type="submit" class="submit-button">Enviar / Send</button>
                 </form>
-                <button type="button" class="back-button">Volver</button>
+                <button type="button" class="back-button">Volver / Back</button>
             </div>
         </div>
     </main>
@@ -77,6 +77,9 @@
     <script src="/__/firebase/8.10.1/firebase-firestore.js"></script>
     <script src="/__/firebase/8.10.1/firebase-storage.js"></script>
     <script src="/__/firebase/init.js"></script>
+
+    <!-- Librería para compresión de imágenes en el navegador -->
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
 
     <script src="js/main.js"></script>
 </body>

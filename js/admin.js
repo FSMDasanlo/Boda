@@ -97,13 +97,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Generar HTML de imágenes si las hay
             let imagesHtml = '';
-            if (data.imageUrls && data.imageUrls.length > 0) {
+            // Compatibilidad con datos antiguos (imageUrls) y nuevos (files), mostrando solo imágenes.
+            const imageUrls = data.imageUrls || (data.files ? data.files.filter(f => f.type && f.type.startsWith('image/')).map(f => f.url) : []);
+
+            if (imageUrls && imageUrls.length > 0) {
                 const imgClass = data.isChallengeProof ? 'challenge-proof-img' : '';
-                // Si es prueba de reto, guardamos el texto del reto en data-challenge y quitamos el onclick inline
                 const clickAction = data.isChallengeProof ? '' : `onclick="window.open(this.src, '_blank')"`;
                 const dataAttr = data.isChallengeProof ? `data-challenge="${escapeHtml(data.challenge || '')}"` : '';
+                
                 imagesHtml = `<div class="memory-images">
-                    ${data.imageUrls.map(url => `<img src="${url}" class="${imgClass}" ${dataAttr} crossorigin="anonymous" ${clickAction} alt="Foto recuerdo">`).join('')}
+                    ${imageUrls.map(url => `<img src="${url}" class="${imgClass}" ${dataAttr} crossorigin="anonymous" ${clickAction} alt="Foto recuerdo">`).join('')}
                 </div>`;
             }
 
@@ -399,22 +402,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Exportar a PDF ---
     downloadBtn.addEventListener('click', () => {
-        const element = document.getElementById('gallery');
+        // 1. Crear un contenedor para el contenido del PDF
+        const pdfContainer = document.createElement('div');
         
-        // Opciones de configuración del PDF
+        // 2. Generar el contenido HTML con todos los mensajes
+        let contentHtml = `
+            <style>
+                body { font-family: 'Lato', sans-serif; color: #333; }
+                h1 { text-align: center; font-family: 'Dancing Script', cursive; font-size: 2.5em; color: #2c3e50; margin-bottom: 20px; }
+                .pdf-grid {
+                    column-count: 2;
+                    column-gap: 20px;
+                    padding: 0 10px;
+                }
+                .pdf-memory-item {
+                    break-inside: avoid-column;
+                    padding: 15px;
+                    margin-bottom: 15px;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    background-color: #fdfdfd;
+                    page-break-inside: avoid;
+                }
+                .pdf-memory-item h3 {
+                    font-family: 'Lato', sans-serif;
+                    font-weight: 700;
+                    font-size: 1.1em;
+                    color: #2c3e50;
+                    margin: 0 0 8px 0;
+                    padding-bottom: 5px;
+                    border-bottom: 1px solid #eee;
+                }
+                .pdf-memory-item .pdf-message {
+                    font-size: 0.9em;
+                    line-height: 1.5;
+                }
+                .pdf-message div, .pdf-message p, .pdf-message span {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    line-height: 1.5;
+                }
+            </style>
+            <h1>Recuerdos de la Boda</h1>
+            <div class="pdf-grid">
+        `;
+
+        // Ordenar los recuerdos por nombre de invitado para el PDF
+        const sortedMemories = [...allMemories].sort((a, b) => a.data.guestName.localeCompare(b.data.guestName));
+
+        sortedMemories.forEach(({ data }) => {
+            // Incluir solo recuerdos que tengan un mensaje de texto
+            if (data.messageHTML && data.messageHTML.trim() !== '') {
+                contentHtml += `
+                    <div class="pdf-memory-item">
+                        <h3>${escapeHtml(data.guestName)}</h3>
+                        <div class="pdf-message">${data.messageHTML}</div>
+                    </div>
+                `;
+            }
+        });
+
+        contentHtml += '</div>';
+        pdfContainer.innerHTML = contentHtml;
+
+        // 3. Opciones de configuración del PDF
         const opt = {
-            margin:       10, // Margen en mm
-            filename:     'recuerdos_boda.pdf',
+            margin:       15, // Margen en mm
+            filename:     'mensajes_recuerdo_boda.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true }, // useCORS es vital para cargar fotos de Firebase
+            html2canvas:  { scale: 2 }, // No se necesita useCORS ya que no hay imágenes externas
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // Añadimos una clase para ocultar botones de borrar durante la foto
-        document.body.classList.add('generating-pdf');
-
-        // Generar PDF y luego quitar la clase
-        html2pdf().set(opt).from(element).save().then(() => document.body.classList.remove('generating-pdf'));
+        // 4. Generar PDF desde el nuevo elemento
+        html2pdf().set(opt).from(pdfContainer).save();
     });
 
     // --- Cargar recuerdos en tiempo real ---
@@ -437,10 +498,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm('¿Estás seguro de que quieres borrar este recuerdo permanentemente?')) return;
 
         try {
-            // 1. Borrar imágenes de Storage (si tiene)
-            if (data.imageUrls && data.imageUrls.length > 0) {
-                const deletePromises = data.imageUrls.map(url => 
-                    storage.refFromURL(url).delete().catch(e => console.warn("Imagen ya borrada o inaccesible", e))
+            // 1. Borrar archivos de Storage (si tiene)
+            // Compatibilidad con datos antiguos (imageUrls) y nuevos (files), borrando solo imágenes.
+            const filesToDelete = data.imageUrls || (data.files ? data.files.filter(f => f.type && f.type.startsWith('image/')).map(f => f.url) : []);
+
+            if (filesToDelete.length > 0) {
+                const deletePromises = filesToDelete.map(url => 
+                    storage.refFromURL(url).delete().catch(e => console.warn("Archivo ya borrado o inaccesible", e))
                 );
                 await Promise.all(deletePromises);
             }
