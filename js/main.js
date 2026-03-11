@@ -338,11 +338,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Determinar si hay un reto antes de guardar
             let challenge = null;
-            // if (newCount % 5 === 0) { // Lógica original
-            if (true) { // Lógica de desarrollo: Todos tienen reto
-                // const challengeIndex = (newCount / 5) - 1;
-                const challengeIndex = newCount - 1;
-                challenge = challenges[challengeIndex % challenges.length];
+            // Lógica para asignar un reto a 1 de cada 5 invitados
+            if (newCount % 5 === 0) {
+                // Contar cuántas veces ha salido ya cada reto para priorizar los no usados
+                const challengeCounts = {};
+                challenges.forEach(c => challengeCounts[c] = 0);
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    // Si el recuerdo tiene un reto y ese reto existe en nuestra lista actual, sumamos 1
+                    if (data.challenge && challengeCounts[data.challenge] !== undefined) {
+                        challengeCounts[data.challenge]++;
+                    }
+                });
+
+                // Encontrar la frecuencia mínima (0 si hay alguno sin usar, 1 si ya se usaron todos una vez, etc.)
+                let minCount = Infinity;
+                challenges.forEach(c => {
+                    if (challengeCounts[c] < minCount) minCount = challengeCounts[c];
+                });
+
+                // Filtrar solo los retos que se han usado menos veces (los candidatos)
+                const candidates = challenges.filter(c => challengeCounts[c] === minCount);
+
+                // Elegir uno al azar de los candidatos disponibles
+                const randIndex = Math.floor(Math.random() * candidates.length);
+                challenge = candidates[randIndex];
             }
 
             // 2. Actualizar mensaje de carga: Si hay reto, lo decimos YA.
