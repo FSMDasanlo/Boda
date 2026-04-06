@@ -21,7 +21,7 @@ body {
     /* 1. Convertimos la sección en una tarjeta de tamaño móvil */
     width: 100%;
     max-width: 400px;
-    height: 700px;
+    height: 650px;
     perspective: 1500px; /* Añadimos perspectiva para el efecto 3D */
     position: relative;
     overflow: hidden;
@@ -582,7 +582,7 @@ body {
     }
     .welcome-section {
         border-radius: 0;
-        height: 100vh;
+        height: 100dvh;
         max-width: 100%;
         box-shadow: none;
     }
