@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Lo celebramos!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Antic+Didone&family=Dancing+Script:wght@700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="challenge-body">
+    <div class="challenge-container">
+        <h1 style="color: white; margin-bottom: 20px;">Enlace Manu y Dani</h1>
+        
+        <div class="challenge-card" style="flex-direction: column; gap: 20px;">
+            <p id="status-text">Cargando estado...</p>
+            
+            <button id="start-ceremony" class="submit-button" style="background-color: #27ae60;">
+                Comienza la ceremonia
+            </button>
+            
+            <button id="end-ceremony" class="submit-button" style="background-color: #e74c3c; display: none;">
+                Finalizar ceremonia
+            </button>
+        </div>
+
+        <a href="index.html" class="skip-challenge-btn">Volver al inicio / Back to home</a>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="/__/firebase/8.10.1/firebase-app.js"></script>
+    <script src="/__/firebase/8.10.1/firebase-firestore.js"></script>
+    <script src="/__/firebase/init.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const db = firebase.firestore();
+            const startBtn = document.getElementById('start-ceremony');
+            const endBtn = document.getElementById('end-ceremony');
+            const statusText = document.getElementById('status-text');
+
+            // Escuchar cambios en tiempo real
+            db.collection("settings").doc("status").onSnapshot((doc) => {
+                const isActive = doc.exists && doc.data().isCeremonyActive;
+                if (isActive) {
+                    statusText.innerHTML = "<strong>LA CEREMONIA ESTÁ ACTIVA</strong><br>Los invitados verán el enlace a Canva.";
+                    startBtn.style.display = "none";
+                    endBtn.style.display = "block";
+                } else {
+                    statusText.innerHTML = "La ceremonia está pausada.<br>Los invitados pueden enviar mensajes.";
+                    startBtn.style.display = "block";
+                    endBtn.style.display = "none";
+                }
+            });
+
+            const setCeremony = async (status) => {
+                try {
+                    await db.collection("settings").doc("status").set({ 
+                        isCeremonyActive: status,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                } catch (e) {
+                    alert("Error: " + e.message);
+                }
+            };
+
+            startBtn.addEventListener('click', () => setCeremony(true));
+            endBtn.addEventListener('click', () => setCeremony(false));
+        });
+    </script>
+</body>
+</html>

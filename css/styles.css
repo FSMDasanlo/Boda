@@ -86,7 +86,7 @@ body {
 
 /* La cara trasera con el formulario */
 .card-back {
-    background-color: rgb(200, 215, 175);
+    background-color: rgb(225, 236, 225);
     color: #333;
     /* Solución para iOS: movemos la cara trasera 1px hacia "adelante" en el espacio 3D
        para evitar el "z-fighting" (conflicto de renderizado) que causa la transparencia.

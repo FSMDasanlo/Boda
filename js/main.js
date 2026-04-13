@@ -2,6 +2,28 @@ document.addEventListener("DOMContentLoaded", () => {
   // Firebase se inicializa automáticamente gracias a /__/firebase/init.js
   // cuando el sitio está desplegado en Firebase Hosting.
   let db, storage;
+
+  // Variable de estado global para controlar si la ceremonia está activa
+  let isCeremonyActiveGlobal = false;
+
+  // --- 1. Selectores de elementos principales (necesarios para el modo ceremonia) ---
+  const weddingInfo = document.querySelector(".wedding-info");
+  const card = document.querySelector(".card");
+  const flipButton = document.querySelector(".memory-button");
+  const backButton = document.querySelector(".back-button");
+
+  // --- 2. Lógica para girar la tarjeta ---
+  const flipCard = (event) => {
+    // Si la ceremonia está activa, NO ejecutamos el giro ni prevenimos el comportamiento por defecto
+    if (isCeremonyActiveGlobal) return;
+
+    if (event) event.preventDefault();
+    if (card) card.classList.toggle("is-flipped");
+  };
+
+  // El botón de volver siempre debe funcionar si existe
+  if (backButton) backButton.addEventListener("click", flipCard);
+
   if (typeof firebase !== "undefined") {
     db = firebase.firestore(); // Ahora puedes usar firebase directamente
     storage = firebase.storage(); // Y también storage
@@ -17,17 +39,49 @@ document.addEventListener("DOMContentLoaded", () => {
       db.useEmulator("localhost", 8080);
       storage.useEmulator("localhost", 9199);
     }
+
+    // --- Control de Modo Ceremonia ---
+    const checkCeremonyStatus = () => {
+      if (!flipButton) return;
+
+      db.collection("settings")
+        .doc("status")
+        .onSnapshot((doc) => {
+          const data = doc.data();
+          isCeremonyActiveGlobal = data && data.isCeremonyActive;
+
+          const textEs = flipButton.querySelector(".text-es");
+          const textEn = flipButton.querySelector(".text-en");
+
+          if (isCeremonyActiveGlobal) {
+            // Cambiar comportamiento a enlace externo
+            if (textEs) textEs.textContent = "Ceremonia";
+            if (textEn) textEn.textContent = "Ceremony";
+
+            flipButton.href = "https://daniymanuboda.my.canva.site/esp";
+            flipButton.target = "_blank";
+            flipButton.rel = "noopener noreferrer"; // Seguridad para pestañas nuevas
+
+            // Por si acaso están ya en la parte trasera, cerramos la tarjeta
+            if (card) card.classList.remove("is-flipped");
+          } else {
+            // Restaurar comportamiento original
+            if (textEs) textEs.textContent = "Déjanos un recuerdo";
+            if (textEn) textEn.textContent = "Leave a message";
+
+            flipButton.href = "#";
+            flipButton.removeAttribute("target");
+            flipButton.removeAttribute("rel");
+          }
+        });
+    };
+    checkCeremonyStatus();
   } else {
-    console.warn(
-      "Firebase no está disponible. Funcionalidades de base de datos deshabilitadas.",
-    );
+    console.warn("Firebase no está disponible.");
   }
 
-  // --- Selectores de elementos ---
-  const weddingInfo = document.querySelector(".wedding-info");
-  const card = document.querySelector(".card");
-  const flipButton = document.querySelector(".memory-button");
-  const backButton = document.querySelector(".back-button");
+  // Asignamos el evento de click una sola vez al inicio
+  if (flipButton) flipButton.addEventListener("click", flipCard);
 
   // Elementos del formulario
   const memoryForm = document.getElementById("memory-form");
@@ -43,18 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let savedRange = null; // Para guardar la posición del cursor en el editor
 
-  if (!card || !flipButton || !backButton || !memoryForm) {
-    console.error("Alguno de los elementos principales no se encontró.");
+  if (!memoryForm) {
+    console.error("No se encontró el formulario de mensajes.");
     return;
   }
-
-  // --- Lógica para girar la tarjeta ---
-  const flipCard = (event) => {
-    event.preventDefault();
-    card.classList.toggle("is-flipped");
-  };
-  flipButton.addEventListener("click", flipCard);
-  backButton.addEventListener("click", flipCard);
 
   // --- Lógica del editor de texto ---
   // Funciones para guardar y restaurar la selección del cursor.
