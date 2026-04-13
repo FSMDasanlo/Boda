@@ -86,7 +86,7 @@ body {
 
 /* La cara trasera con el formulario */
 .card-back {
-    background-color: rgb(200, 215, 185);
+    background-color: rgb(200, 215, 175);
     color: #333;
     /* Solución para iOS: movemos la cara trasera 1px hacia "adelante" en el espacio 3D
        para evitar el "z-fighting" (conflicto de renderizado) que causa la transparencia.
@@ -491,6 +491,7 @@ body {
 }
 
 .submit-button, .back-button {
+    width: 100%;
     padding: 12px 20px;
     border: none;
     border-radius: 50px;
@@ -512,11 +513,37 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
+.submit-button.loading {
+    color: transparent !important;
+    position: relative;
+    pointer-events: none;
+}
+
+.submit-button.loading::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: calc(50% - 10px);
+    left: calc(50% - 10px);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+}
+
 .back-button {
     background-color: transparent;
     color: #333;
     margin-top: 15px;
     border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.back-button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    border-color: rgb(52, 96, 81);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Estilos para la animación de confirmación */
@@ -1028,7 +1055,7 @@ body {
 
 /* --- Estilos para la página de Retos --- */
 .challenge-body {
-    background-color: rgb(139, 156, 111);
+    background-color: rgb(147, 156, 132);
     display: flex;
     justify-content: center;
     align-items: center;

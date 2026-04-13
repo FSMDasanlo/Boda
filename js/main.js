@@ -309,6 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
     charCounter.style.color = "rgba(255, 255, 255, 0.7)";
     if (enableButton) {
       submitButton.disabled = false;
+      submitButton.classList.remove("loading");
       submitButton.textContent = "Enviar / Send";
     }
   };
@@ -349,6 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     submitButton.disabled = true;
+    submitButton.classList.add("loading");
 
     // FEEDBACK INMEDIATO: Mostrar "Procesando" antes de saber si hay reto
     confirmationMessage.innerHTML = `
@@ -424,6 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         confirmationMessage.classList.remove("show");
         submitButton.disabled = false;
+        submitButton.classList.remove("loading");
         submitButton.textContent = "Enviar / Send";
       }, 5000);
     }
