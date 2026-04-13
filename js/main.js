@@ -1,376 +1,396 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Firebase se inicializa automáticamente gracias a /__/firebase/init.js
-    // cuando el sitio está desplegado en Firebase Hosting.
-    const db = firebase.firestore(); // Ahora puedes usar firebase directamente
+document.addEventListener("DOMContentLoaded", () => {
+  // Firebase se inicializa automáticamente gracias a /__/firebase/init.js
+  // cuando el sitio está desplegado en Firebase Hosting.
+  let db, storage;
+  if (typeof firebase !== "undefined") {
+    db = firebase.firestore(); // Ahora puedes usar firebase directamente
+    storage = firebase.storage(); // Y también storage
 
-    const storage = firebase.storage(); // Y también storage
-    
     // --- Conectar a Emuladores si se está en entorno local ---
     // Esto permite probar en tu PC sin tocar la base de datos real
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        console.log("Entorno local detectado. Usando emuladores.");
-        db.useEmulator("localhost", 8080);
-        storage.useEmulator("localhost", 9199);
+    if (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+    ) {
+      console.log("Entorno local detectado. Usando emuladores.");
+      db.useEmulator("localhost", 8080);
+      storage.useEmulator("localhost", 9199);
+    }
+  } else {
+    console.warn(
+      "Firebase no está disponible. Funcionalidades de base de datos deshabilitadas.",
+    );
+  }
+
+  // --- Selectores de elementos ---
+  const weddingInfo = document.querySelector(".wedding-info");
+  const card = document.querySelector(".card");
+  const flipButton = document.querySelector(".memory-button");
+  const backButton = document.querySelector(".back-button");
+
+  // Elementos del formulario
+  const memoryForm = document.getElementById("memory-form");
+  const guestNameInput = document.getElementById("guest-name");
+  const messageBox = document.getElementById("message-box");
+  const emojiBtn = document.getElementById("emoji-btn");
+  const emojiPanel = document.getElementById("emoji-panel");
+  const uploadPhotoButton = document.getElementById("upload-photo-button");
+  const photoUploadInput = document.getElementById("photo-upload");
+  const imagePreview = document.getElementById("image-preview-container");
+  const charCounter = document.getElementById("char-counter");
+  const confirmationMessage = document.getElementById("confirmation-message");
+
+  let challenges = []; // Se rellenará desde Firestore
+  let savedRange = null; // Para guardar la posición del cursor en el editor
+
+  if (!card || !flipButton || !backButton || !memoryForm) {
+    console.error("Alguno de los elementos principales no se encontró.");
+    return;
+  }
+
+  // --- Lógica para girar la tarjeta ---
+  const flipCard = (event) => {
+    event.preventDefault();
+    card.classList.toggle("is-flipped");
+  };
+  flipButton.addEventListener("click", flipCard);
+  backButton.addEventListener("click", flipCard);
+
+  // --- Lógica del editor de texto ---
+  // Funciones para guardar y restaurar la selección del cursor.
+  // Esto es clave para que los emojis se inserten donde está el cursor y no al principio.
+  const saveSelection = () => {
+    if (window.getSelection) {
+      const sel = window.getSelection();
+      // Solo guardamos la selección si existe y está dentro del cuadro de mensaje
+      if (
+        sel.rangeCount > 0 &&
+        messageBox.contains(sel.getRangeAt(0).commonAncestorContainer)
+      ) {
+        savedRange = sel.getRangeAt(0);
+      }
+    }
+  };
+
+  const restoreSelection = () => {
+    messageBox.focus(); // Es crucial re-enfocar el editor primero
+    if (savedRange) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+    }
+  };
+
+  // --- Lógica del panel de Emojis ---
+  const emojis = [
+    "❤️",
+    "😂",
+    "🎉",
+    "🥳",
+    "🥰",
+    "🥂",
+    "💃",
+    "🕺",
+    "✨",
+    "👍",
+    "🙏",
+    "😊",
+    "😎",
+    "💖",
+    "😍",
+    "🔥",
+  ];
+
+  // Poblar el panel de emojis
+  emojis.forEach((emoji) => {
+    const span = document.createElement("span");
+    span.textContent = emoji;
+    span.addEventListener("click", () => {
+      insertEmoji(emoji);
+    });
+    emojiPanel.appendChild(span);
+  });
+
+  // Función para insertar el emoji en el contenteditable
+  const insertEmoji = (emoji) => {
+    restoreSelection(); // Restaura la posición del cursor antes de insertar
+    document.execCommand("insertText", false, emoji);
+    emojiPanel.classList.remove("show");
+    // Guardamos la nueva posición del cursor para la siguiente acción
+    saveSelection();
+  };
+
+  // Mostrar/ocultar el panel
+  emojiBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); // Evita que el click se propague al documento y cierre el panel inmediatamente
+    emojiPanel.classList.toggle("show");
+  });
+
+  // Ocultar el panel si se hace click fuera
+  document.addEventListener("click", (e) => {
+    if (!emojiPanel.contains(e.target) && e.target !== emojiBtn) {
+      emojiPanel.classList.remove("show");
+    }
+  });
+
+  // Guardamos la selección del cursor cada vez que el usuario interactúa con el editor
+  messageBox.addEventListener("keyup", saveSelection);
+  messageBox.addEventListener("mouseup", saveSelection);
+  messageBox.addEventListener("focus", saveSelection);
+
+  // --- Lógica del contador de caracteres ---
+  const MAX_CHARS = 500;
+  charCounter.textContent = `0 / ${MAX_CHARS}`; // Inicializar
+
+  messageBox.addEventListener("input", () => {
+    const currentLength = messageBox.innerText.length;
+
+    charCounter.textContent = `${currentLength} / ${MAX_CHARS}`;
+
+    if (currentLength > MAX_CHARS) {
+      charCounter.style.color = "#ff4d4d"; // Rojo para indicar que se pasó
+    } else {
+      charCounter.style.color = "rgba(255, 255, 255, 0.7)";
+    }
+  });
+
+  // --- Lógica para subir foto ---
+  let selectedFiles = [];
+  uploadPhotoButton.addEventListener("click", () => {
+    photoUploadInput.click(); // Abre el diálogo de archivo
+  });
+
+  photoUploadInput.addEventListener("change", async (event) => {
+    const newFiles = Array.from(event.target.files);
+
+    if (selectedFiles.length + newFiles.length > 5) {
+      alert("Puedes subir un máximo de 5 fotos.");
+      photoUploadInput.value = null;
+      return;
     }
 
-    // --- Selectores de elementos ---
-    const weddingInfo = document.querySelector('.wedding-info');
-    const card = document.querySelector('.card');
-    const flipButton = document.querySelector('.memory-button');
-    const backButton = document.querySelector('.back-button');
-    
-    // Elementos del formulario
-    const memoryForm = document.getElementById('memory-form');
-    const guestNameInput = document.getElementById('guest-name');
-    const messageBox = document.getElementById('message-box');
-    const fontNameSelect = document.getElementById('font-name');
-    const fontSizeSelect = document.getElementById('font-size');
-    const boldButton = document.getElementById('bold-btn');
-    const italicButton = document.getElementById('italic-btn');
-    const fontColorInput = document.getElementById('font-color');
-    const emojiBtn = document.getElementById('emoji-btn');
-    const emojiPanel = document.getElementById('emoji-panel');
-    const uploadPhotoButton = document.getElementById('upload-photo-button');
-    const photoUploadInput = document.getElementById('photo-upload');
-    const imagePreview = document.getElementById('image-preview-container');
-    const charCounter = document.getElementById('char-counter');
-    const confirmationMessage = document.getElementById('confirmation-message');
+    // Deshabilitar el botón mientras se procesan los archivos para dar feedback
+    uploadPhotoButton.disabled = true;
+    uploadPhotoButton.textContent = "Procesando...";
 
-    let challenges = []; // Se rellenará desde Firestore
-    let savedRange = null; // Para guardar la posición del cursor en el editor
+    for (const originalFile of newFiles) {
+      let fileToProcess = originalFile;
 
-    if (!card || !flipButton || !backButton || !memoryForm) {
-        console.error('Alguno de los elementos principales no se encontró.');
-        return;
-    }
-
-    // --- Lógica para girar la tarjeta ---
-    const flipCard = (event) => {
-        event.preventDefault();
-        card.classList.toggle('is-flipped');
-    };
-    flipButton.addEventListener('click', flipCard);
-    backButton.addEventListener('click', flipCard);
-
-    // --- Lógica del editor de texto ---
-    // Funciones para guardar y restaurar la selección del cursor.
-    // Esto es clave para que los emojis se inserten donde está el cursor y no al principio.
-    const saveSelection = () => {
-        if (window.getSelection) {
-            const sel = window.getSelection();
-            // Solo guardamos la selección si existe y está dentro del cuadro de mensaje
-            if (sel.rangeCount > 0 && messageBox.contains(sel.getRangeAt(0).commonAncestorContainer)) {
-                savedRange = sel.getRangeAt(0);
-            }
-        }
-    };
-
-    const restoreSelection = () => {
-        messageBox.focus(); // Es crucial re-enfocar el editor primero
-        if (savedRange) {
-            const sel = window.getSelection();
-            sel.removeAllRanges();
-            sel.addRange(savedRange);
-        }
-    };
-
-    // Establece el color inicial del texto al cargar la página, tomando el valor del input
-    messageBox.style.color = fontColorInput.value;
-
-    const applyStyle = (command, value = null) => {
-        document.execCommand(command, false, value);
-        messageBox.focus();
-    };
-
-    boldButton.addEventListener('click', () => applyStyle('bold'));
-    italicButton.addEventListener('click', () => applyStyle('italic'));
-    fontNameSelect.addEventListener('change', () => applyStyle('fontName', fontNameSelect.value));
-    fontSizeSelect.addEventListener('change', () => applyStyle('fontSize', fontSizeSelect.value));
-
-    // Manejo del color: Aplicar solo a selección o nuevo texto
-    fontColorInput.addEventListener('input', () => {
-        const newColor = fontColorInput.value;
-        applyStyle('foreColor', newColor);
-    });
-
-    // --- Lógica del panel de Emojis ---
-    const emojis = ['❤️', '😂', '🎉', '🥳', '🥰', '🥂', '💃', '🕺', '✨', '👍', '🙏', '😊', '😎', '💖', '😍', '🔥'];
-
-    // Poblar el panel de emojis
-    emojis.forEach(emoji => {
-        const span = document.createElement('span');
-        span.textContent = emoji;
-        span.addEventListener('click', () => {
-            insertEmoji(emoji);
-        });
-        emojiPanel.appendChild(span);
-    });
-
-    // Función para insertar el emoji en el contenteditable
-    const insertEmoji = (emoji) => {
-        restoreSelection(); // Restaura la posición del cursor antes de insertar
-        document.execCommand('insertText', false, emoji);
-        emojiPanel.classList.remove('show');
-        // Guardamos la nueva posición del cursor para la siguiente acción
-        saveSelection();
-    };
-
-    // Mostrar/ocultar el panel
-    emojiBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Evita que el click se propague al documento y cierre el panel inmediatamente
-        emojiPanel.classList.toggle('show');
-    });
-
-    // Ocultar el panel si se hace click fuera
-    document.addEventListener('click', (e) => {
-        if (!emojiPanel.contains(e.target) && e.target !== emojiBtn) {
-            emojiPanel.classList.remove('show');
-        }
-    });
-
-    // Sincronización inversa: Actualizar el selector de color según donde esté el cursor
-    const updateColorPicker = () => {
-        const color = document.queryCommandValue('foreColor');
-        // Convertir rgb(r, g, b) a hex #RRGGBB para que el input lo entienda
-        if (color && color.indexOf('rgb') !== -1) {
-            const rgb = color.match(/\d+/g);
-            if (rgb) {
-                const hex = "#" + 
-                    ("0" + parseInt(rgb[0], 10).toString(16)).slice(-2) +
-                    ("0" + parseInt(rgb[1], 10).toString(16)).slice(-2) +
-                    ("0" + parseInt(rgb[2], 10).toString(16)).slice(-2);
-                fontColorInput.value = hex;
-            }
-        }
-    };
-    messageBox.addEventListener('keyup', updateColorPicker);
-    messageBox.addEventListener('mouseup', updateColorPicker);
-
-    // Guardamos la selección del cursor cada vez que el usuario interactúa con el editor
-    messageBox.addEventListener('keyup', saveSelection);
-    messageBox.addEventListener('mouseup', saveSelection);
-    messageBox.addEventListener('focus', saveSelection);
-
-    // --- Lógica del contador de caracteres ---
-    const MAX_CHARS = 500;
-    charCounter.textContent = `0 / ${MAX_CHARS}`; // Inicializar
-
-    messageBox.addEventListener('input', () => {
-        const currentLength = messageBox.innerText.length;
-        
-        charCounter.textContent = `${currentLength} / ${MAX_CHARS}`;
-
-        if (currentLength > MAX_CHARS) {
-            charCounter.style.color = '#ff4d4d'; // Rojo para indicar que se pasó
-        } else {
-            charCounter.style.color = 'rgba(255, 255, 255, 0.7)';
-        }
-    });
-
-    // --- Lógica para subir foto ---
-    let selectedFiles = [];
-    uploadPhotoButton.addEventListener('click', () => {
-        photoUploadInput.click(); // Abre el diálogo de archivo
-    });
-
-    photoUploadInput.addEventListener('change', async (event) => {
-        const newFiles = Array.from(event.target.files);
-
-        if (selectedFiles.length + newFiles.length > 5) {
-            alert('Puedes subir un máximo de 5 fotos.');
-            photoUploadInput.value = null;
-            return;
-        }
-
-        // Deshabilitar el botón mientras se procesan los archivos para dar feedback
-        uploadPhotoButton.disabled = true;
-        uploadPhotoButton.textContent = 'Procesando...';
-
-        for (const originalFile of newFiles) {
-            let fileToProcess = originalFile;
-
-            // Comprimir si es una imagen (y no un GIF animado, que perdería la animación)
-            if (fileToProcess.type.startsWith('image/') && !fileToProcess.type.includes('gif')) {
-                const options = {
-                    maxSizeMB: 0.5,       // Comprimir a un máximo de 500KB
-                    maxWidthOrHeight: 1920, // Redimensionar si es más grande para no exceder HD
-                    useWebWorker: true,
-                };
-
-                try {
-                    const compressedBlob = await imageCompression(fileToProcess, options);
-                    // Recreamos el archivo (File) desde el Blob para mantener el nombre original
-                    fileToProcess = new File([compressedBlob], originalFile.name, {
-                        type: compressedBlob.type,
-                        lastModified: Date.now(),
-                    });
-                } catch (error) {
-                    console.error("Error al comprimir la imagen, se usará el original:", error);
-                    // Si falla la compresión, no hacemos nada y fileToProcess sigue siendo el archivo original
-                }
-            }
-
-            // Añadimos la foto (comprimida o no) a nuestro array
-            selectedFiles.push(fileToProcess);
-
-            // --- Creamos la vista previa de la imagen ---
-            const previewWrapper = document.createElement('div');
-            previewWrapper.classList.add('image-preview-item');
-
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.classList.add('remove-image-btn');
-            removeBtn.innerHTML = '&times;';
-            removeBtn.onclick = () => {
-                previewWrapper.remove();
-                const index = selectedFiles.indexOf(fileToProcess);
-                if (index > -1) {
-                    selectedFiles.splice(index, 1);
-                }
-            };
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                previewWrapper.style.backgroundImage = `url(${e.target.result})`;
-            };
-            reader.readAsDataURL(fileToProcess);
-
-            previewWrapper.appendChild(removeBtn);
-            imagePreview.appendChild(previewWrapper);
-        }
-        // Reactivar el botón y limpiar el input para poder seleccionar más archivos
-        uploadPhotoButton.disabled = false;
-        uploadPhotoButton.textContent = 'Añadir foto';
-        photoUploadInput.value = null;
-    });
-
-    // --- Lógica de envío a Firebase (mejorada) ---
-    const saveMemory = async (guestName, messageHTML, files, challenge = null) => {
-        // 1. Subir imágenes a Firebase Storage si existen
-        let imageUrls = [];
-        if (files.length > 0) {
-            const uploadPromises = files.map(file => {
-                const filePath = `memories/${Date.now()}_${file.name}`;
-                const fileRef = storage.ref().child(filePath);
-                // Subimos el archivo (especificando el tipo para las reglas) y obtenemos la URL
-                return fileRef.put(file, { contentType: file.type }).then(() => fileRef.getDownloadURL());
-            });
-            imageUrls = await Promise.all(uploadPromises);
-        }
-
-        // 2. Guardar los datos en Firestore
-        const memoryData = {
-            guestName: guestName,
-            messageHTML: messageHTML,
-            imageUrls: imageUrls, // Volvemos a usar el campo original de URLs de imágenes
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      // Comprimir si es una imagen (y no un GIF animado, que perdería la animación)
+      if (
+        fileToProcess.type.startsWith("image/") &&
+        !fileToProcess.type.includes("gif")
+      ) {
+        const options = {
+          maxSizeMB: 0.5, // Comprimir a un máximo de 500KB
+          maxWidthOrHeight: 1920, // Redimensionar si es más grande para no exceder HD
+          useWebWorker: true,
         };
 
-        if (challenge) {
-            memoryData.challenge = challenge;
+        try {
+          const compressedBlob = await imageCompression(fileToProcess, options);
+          // Recreamos el archivo (File) desde el Blob para mantener el nombre original
+          fileToProcess = new File([compressedBlob], originalFile.name, {
+            type: compressedBlob.type,
+            lastModified: Date.now(),
+          });
+        } catch (error) {
+          console.error(
+            "Error al comprimir la imagen, se usará el original:",
+            error,
+          );
+          // Si falla la compresión, no hacemos nada y fileToProcess sigue siendo el archivo original
         }
+      }
 
-        await db.collection('memories').add(memoryData);
-    };
+      // Añadimos la foto (comprimida o no) a nuestro array
+      selectedFiles.push(fileToProcess);
 
-    // Función para escapar HTML y evitar XSS
-    function escapeHtml(text) {
-        if (!text) return '';
-        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-        return text.replace(/[&<>"']/g, (m) => map[m]);
+      // --- Creamos la vista previa de la imagen ---
+      const previewWrapper = document.createElement("div");
+      previewWrapper.classList.add("image-preview-item");
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.classList.add("remove-image-btn");
+      removeBtn.innerHTML = "&times;";
+      removeBtn.onclick = () => {
+        previewWrapper.remove();
+        const index = selectedFiles.indexOf(fileToProcess);
+        if (index > -1) {
+          selectedFiles.splice(index, 1);
+        }
+      };
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewWrapper.style.backgroundImage = `url(${e.target.result})`;
+      };
+      reader.readAsDataURL(fileToProcess);
+
+      previewWrapper.appendChild(removeBtn);
+      imagePreview.appendChild(previewWrapper);
+    }
+    // Reactivar el botón y limpiar el input para poder seleccionar más archivos
+    uploadPhotoButton.disabled = false;
+    uploadPhotoButton.textContent = "Añadir foto";
+    photoUploadInput.value = null;
+  });
+
+  // --- Lógica de envío a Firebase (mejorada) ---
+  const saveMemory = async (
+    guestName,
+    messageHTML,
+    files,
+    challenge = null,
+  ) => {
+    if (!db || !storage) {
+      throw new Error("Firebase no está disponible");
+    }
+    // 1. Subir imágenes a Firebase Storage si existen
+    let imageUrls = [];
+    if (files.length > 0) {
+      const uploadPromises = files.map((file) => {
+        const filePath = `memories/${Date.now()}_${file.name}`;
+        const fileRef = storage.ref().child(filePath);
+        // Subimos el archivo (especificando el tipo para las reglas) y obtenemos la URL
+        return fileRef
+          .put(file, { contentType: file.type })
+          .then(() => fileRef.getDownloadURL());
+      });
+      imageUrls = await Promise.all(uploadPromises);
     }
 
-    // Helper para resetear el formulario
-    const resetForm = (enableButton = true) => {
-        const submitButton = memoryForm.querySelector('.submit-button');
-        guestNameInput.value = '';
-        messageBox.innerHTML = '';
-        imagePreview.innerHTML = '';
-        selectedFiles = [];
-        charCounter.textContent = `0 / ${MAX_CHARS}`;
-        charCounter.style.color = 'rgba(255, 255, 255, 0.7)';
-        if (enableButton) {
-            submitButton.disabled = false;
-            submitButton.textContent = 'Enviar / Send';
-        }
+    // 2. Guardar los datos en Firestore
+    const memoryData = {
+      guestName: guestName,
+      messageHTML: messageHTML,
+      imageUrls: imageUrls, // Volvemos a usar el campo original de URLs de imágenes
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
 
-    const handleFormSubmit = async (event) => {
-        event.preventDefault();
-        
-        const guestName = guestNameInput.value;
-        const messageHTML = messageBox.innerHTML;
-        const filesToUpload = [...selectedFiles]; // Copia para procesar en segundo plano
-        
-        const submitButton = memoryForm.querySelector('.submit-button');
+    if (challenge) {
+      memoryData.challenge = challenge;
+    }
 
-        // --- Validaciones ---
-        if (messageBox.innerText.length > MAX_CHARS) {
-            alert(`Tu mensaje es demasiado largo. El límite es de ${MAX_CHARS} caracteres.`);
-            messageBox.focus();
-            return;
-        }
-        if (!guestName.trim()) {
-            alert('Por favor, no te olvides de poner tu nombre.');
-            guestNameInput.focus();
-            return;
-        }
-        if (!messageHTML.trim() && filesToUpload.length === 0) {
-            alert('Por favor, escribe un mensaje o sube una foto.');
-            messageBox.focus();
-            return;
-        }
+    await db.collection("memories").add(memoryData);
+  };
 
-        submitButton.disabled = true;
+  // Función para escapar HTML y evitar XSS
+  function escapeHtml(text) {
+    if (!text) return "";
+    const map = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+  }
 
-        // FEEDBACK INMEDIATO: Mostrar "Procesando" antes de saber si hay reto
-        confirmationMessage.innerHTML = `
+  // Helper para resetear el formulario
+  const resetForm = (enableButton = true) => {
+    const submitButton = memoryForm.querySelector(".submit-button");
+    guestNameInput.value = "";
+    messageBox.innerHTML = "";
+    imagePreview.innerHTML = "";
+    selectedFiles = [];
+    charCounter.textContent = `0 / ${MAX_CHARS}`;
+    charCounter.style.color = "rgba(255, 255, 255, 0.7)";
+    if (enableButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "Enviar / Send";
+    }
+  };
+
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!db) {
+      alert(
+        "La base de datos no está disponible. Por favor, recarga la página o verifica tu conexión.",
+      );
+      return;
+    }
+
+    const guestName = guestNameInput.value;
+    const messageHTML = messageBox.innerHTML;
+    const filesToUpload = [...selectedFiles]; // Copia para procesar en segundo plano
+
+    const submitButton = memoryForm.querySelector(".submit-button");
+
+    // --- Validaciones ---
+    if (messageBox.innerText.length > MAX_CHARS) {
+      alert(
+        `Tu mensaje es demasiado largo. El límite es de ${MAX_CHARS} caracteres.`,
+      );
+      messageBox.focus();
+      return;
+    }
+    if (!guestName.trim()) {
+      alert("Por favor, no te olvides de poner tu nombre.");
+      guestNameInput.focus();
+      return;
+    }
+    if (!messageHTML.trim() && filesToUpload.length === 0) {
+      alert("Por favor, escribe un mensaje o sube una foto.");
+      messageBox.focus();
+      return;
+    }
+
+    submitButton.disabled = true;
+
+    // FEEDBACK INMEDIATO: Mostrar "Procesando" antes de saber si hay reto
+    confirmationMessage.innerHTML = `
             <div class="confirmation-icon-loading"></div>
             <h2>Procesando...</h2>
         `;
-        confirmationMessage.classList.add('show');
+    confirmationMessage.classList.add("show");
 
-        try {
-            // 1. Obtener el número actual de recuerdos para mostrar un mensaje personalizado
-            const snapshot = await db.collection('memories').get();
-            const count = snapshot.size;
-            const newCount = count + 1;
+    try {
+      // 1. Obtener el número actual de recuerdos para mostrar un mensaje personalizado
+      const snapshot = await db.collection("memories").get();
+      const count = snapshot.size;
+      const newCount = count + 1;
 
-            // Determinar si hay un reto antes de guardar
-            let challenge = null;
-            // Lógica para asignar un reto a 1 de cada 5 invitados
-            if (newCount % 5 === 0) {
-                // Contar cuántas veces ha salido ya cada reto para priorizar los no usados
-                const challengeCounts = {};
-                challenges.forEach(c => challengeCounts[c] = 0);
+      // Determinar si hay un reto antes de guardar
+      let challenge = null;
+      // Lógica para asignar un reto a 1 de cada 5 invitados
+      if (newCount % 5 === 0) {
+        // Contar cuántas veces ha salido ya cada reto para priorizar los no usados
+        const challengeCounts = {};
+        challenges.forEach((c) => (challengeCounts[c] = 0));
 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    // Si el recuerdo tiene un reto y ese reto existe en nuestra lista actual, sumamos 1
-                    if (data.challenge && challengeCounts[data.challenge] !== undefined) {
-                        challengeCounts[data.challenge]++;
-                    }
-                });
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          // Si el recuerdo tiene un reto y ese reto existe en nuestra lista actual, sumamos 1
+          if (data.challenge && challengeCounts[data.challenge] !== undefined) {
+            challengeCounts[data.challenge]++;
+          }
+        });
 
-                // Encontrar la frecuencia mínima (0 si hay alguno sin usar, 1 si ya se usaron todos una vez, etc.)
-                let minCount = Infinity;
-                challenges.forEach(c => {
-                    if (challengeCounts[c] < minCount) minCount = challengeCounts[c];
-                });
+        // Encontrar la frecuencia mínima (0 si hay alguno sin usar, 1 si ya se usaron todos una vez, etc.)
+        let minCount = Infinity;
+        challenges.forEach((c) => {
+          if (challengeCounts[c] < minCount) minCount = challengeCounts[c];
+        });
 
-                // Filtrar solo los retos que se han usado menos veces (los candidatos)
-                const candidates = challenges.filter(c => challengeCounts[c] === minCount);
+        // Filtrar solo los retos que se han usado menos veces (los candidatos)
+        const candidates = challenges.filter(
+          (c) => challengeCounts[c] === minCount,
+        );
 
-                // Elegir uno al azar de los candidatos disponibles
-                const randIndex = Math.floor(Math.random() * candidates.length);
-                challenge = candidates[randIndex];
-            }
+        // Elegir uno al azar de los candidatos disponibles
+        const randIndex = Math.floor(Math.random() * candidates.length);
+        challenge = candidates[randIndex];
+      }
 
-            // 2. Actualizar mensaje de carga: Si hay reto, lo decimos YA.
-            const friendlyGuestName = escapeHtml(guestName.trim().split(' ')[0]);
-            
-            if (challenge) {
-                confirmationMessage.innerHTML = `
+      // 2. Actualizar mensaje de carga: Si hay reto, lo decimos YA.
+      const friendlyGuestName = escapeHtml(guestName.trim().split(" ")[0]);
+
+      if (challenge) {
+        confirmationMessage.innerHTML = `
                     <div class="confirmation-icon-loading"></div>
                     <h2>¡SORPRESA, ${friendlyGuestName}!</h2>
                     <p>Por ser tan simpátic@...</p>
@@ -379,153 +399,273 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p style="font-size: 1.2em; font-weight: bold; color: #f0e68c; margin: 5px 0;">Wedding Guest Challenge!</p>
                     <p class="sending-info">Guardando tu mensaje para ver el reto...<br><em style="opacity:0.8; font-size:0.9em;">Saving your message to see the challenge...</em></p>
                 `;
-            } else {
-                const savingInfoEs = `Guardando ${filesToUpload.length > 0 ? `tus ${filesToUpload.length} foto(s) y ` : ''}tu mensaje...`;
-                const savingInfoEn = `Saving ${filesToUpload.length > 0 ? `your ${filesToUpload.length} photo(s) and ` : ''}your message...`;
-                confirmationMessage.innerHTML = `
+      } else {
+        const savingInfoEs = `Guardando ${filesToUpload.length > 0 ? `tus ${filesToUpload.length} foto(s) y ` : ""}tu mensaje...`;
+        const savingInfoEn = `Saving ${filesToUpload.length > 0 ? `your ${filesToUpload.length} photo(s) and ` : ""}your message...`;
+        confirmationMessage.innerHTML = `
                     <div class="confirmation-icon-loading"></div>
                     <h2>¡Gracias, ${friendlyGuestName}!</h2>
                     <p>Eres la persona n.º ${newCount} en dejarnos un recuerdo.</p>
                     <p class="sending-info">${savingInfoEs}<br><em style="opacity:0.8; font-size:0.9em;">${savingInfoEn}</em></p>
                 `;
-            }
+      }
 
-            // 3. Iniciar el guardado en segundo plano y un temporizador mínimo de 5 segundos.
-            // Esto asegura que el mensaje de "Gracias" o "¡Reto!" se vea al menos ese tiempo.
-            const savePromise = saveMemory(guestName, messageHTML, filesToUpload, challenge);
-            const timerPromise = new Promise(resolve => setTimeout(resolve, 5000));
+      // 3. Iniciar el guardado en segundo plano y un temporizador mínimo de 5 segundos.
+      // Esto asegura que el mensaje de "Gracias" o "¡Reto!" se vea al menos ese tiempo.
+      const savePromise = saveMemory(
+        guestName,
+        messageHTML,
+        filesToUpload,
+        challenge,
+      );
+      const timerPromise = new Promise((resolve) => setTimeout(resolve, 5000));
 
-            await Promise.all([savePromise, timerPromise]);
+      await Promise.all([savePromise, timerPromise]);
 
-            // 4. Cuando el guardado y el tiempo mínimo han pasado, decidir si hay reto o no
-            if (challenge) {
-                const encodedChallenge = encodeURIComponent(challenge);
-                const encodedName = encodeURIComponent(guestName);
+      // 4. Cuando el guardado y el tiempo mínimo han pasado, decidir si hay reto o no
+      if (challenge) {
+        const encodedChallenge = encodeURIComponent(challenge);
+        const encodedName = encodeURIComponent(guestName);
 
-                confirmationMessage.innerHTML = `
+        confirmationMessage.innerHTML = `
                     <div class="confirmation-icon" style="color: #f0e68c;">&#11088;</div>
                     <h2>¡Recuerdo guardado!</h2>
                     <p>Por ser tan simpátic@, ¡Te ponemos un reto!</p>
                     <p><em>(For being so nice, here is a challenge!)</em></p>
                     <button type="button" class="submit-button" style="margin-top: 20px;" onclick="window.location.href='retos.html?reto=${encodedChallenge}&name=${encodedName}'">Ver mi reto</button>
                 `;
-                const icon = confirmationMessage.querySelector('.confirmation-icon');
-                if (icon) icon.style.animation = 'pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards';
+        const icon = confirmationMessage.querySelector(".confirmation-icon");
+        if (icon)
+          icon.style.animation =
+            "pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards";
 
-                // Reseteamos el formulario en segundo plano, pero no el botón.
-                resetForm(false);
-
-            } else {
-                // Flujo normal sin reto: El mensaje se queda hasta que el usuario pulsa el botón
-                confirmationMessage.innerHTML = `
+        // Reseteamos el formulario en segundo plano, pero no el botón.
+        resetForm(false);
+      } else {
+        // Flujo normal sin reto: El mensaje se queda hasta que el usuario pulsa el botón
+        confirmationMessage.innerHTML = `
                     <div class="confirmation-icon">&#10004;</div>
                     <h2>¡Recuerdo guardado!</h2>
                     <p>Gracias por formar parte de nuestro día.</p>
                     <p style="font-size: 1em; opacity: 0.8; margin-top: 5px;"><em>Memory saved! Thank you for being part of our day.</em></p>
                     <button type="button" id="close-success-btn" class="submit-button" style="margin-top: 20px;">Hecho / Done</button>
                 `;
-                const icon = confirmationMessage.querySelector('.confirmation-icon');
-                if (icon) icon.style.animation = 'pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards';
+        const icon = confirmationMessage.querySelector(".confirmation-icon");
+        if (icon)
+          icon.style.animation =
+            "pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards";
 
-                // 5. Añadimos un listener al nuevo botón para cerrar y resetear
-                document.getElementById('close-success-btn').addEventListener('click', () => {
-                    confirmationMessage.classList.remove('show');
-                    // Pequeño delay para que la transición de opacidad termine antes de girar
-                    setTimeout(() => {
-                        resetForm(true);
-                        card.classList.remove('is-flipped');
-                    }, 500); // 500ms coincide con la transición de opacidad del CSS
-                });
+        // 5. Añadimos un listener al nuevo botón para cerrar y resetear
+        document
+          .getElementById("close-success-btn")
+          .addEventListener("click", () => {
+            confirmationMessage.classList.remove("show");
+            // Pequeño delay para que la transición de opacidad termine antes de girar
+            setTimeout(() => {
+              resetForm(true);
+              card.classList.remove("is-flipped");
+            }, 500); // 500ms coincide con la transición de opacidad del CSS
+          });
 
-                // Reseteamos el formulario en segundo plano, pero no el botón de envío.
-                resetForm(false);
-            }
+        // Reseteamos el formulario en segundo plano, pero no el botón de envío.
+        resetForm(false);
+      }
+    } catch (error) {
+      console.error("Error al guardar el recuerdo: ", error);
 
-        } catch (error) {
-            console.error("Error al guardar el recuerdo: ", error);
-            
-            confirmationMessage.innerHTML = `
+      confirmationMessage.innerHTML = `
                 <div class="confirmation-icon" style="color: #ff4d4d;">&times;</div>
                 <h2>¡Ups! Hubo un error</h2>
                 <p>No se pudo guardar tu recuerdo. Por favor, inténtalo de nuevo en un momento.</p>
             `;
-            const errorIcon = confirmationMessage.querySelector('.confirmation-icon');
-            if (errorIcon) errorIcon.style.animation = 'pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards';
+      const errorIcon = confirmationMessage.querySelector(".confirmation-icon");
+      if (errorIcon)
+        errorIcon.style.animation =
+          "pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards";
 
-            setTimeout(() => {
-                confirmationMessage.classList.remove('show');
-                submitButton.disabled = false;
-                submitButton.textContent = 'Enviar / Send';
-            }, 5000);
-        }
-    };
-
-    // --- Lógica para cambiar el idioma del texto inferior ---
-    // Ahora es un ciclo independiente y más lento para que dé tiempo a leer.
-    if (weddingInfo) {
-        setInterval(() => {
-            weddingInfo.classList.toggle('lang-en');
-        }, 4000); // Cambia de idioma cada 4 segundos.
+      setTimeout(() => {
+        confirmationMessage.classList.remove("show");
+        submitButton.disabled = false;
+        submitButton.textContent = "Enviar / Send";
+      }, 5000);
     }
+  };
 
-    // --- Carga inicial de datos y asignación de eventos ---
-    const initializeApp = async () => {
-        const challengesCollection = db.collection('challenges');
-        try {
-            const snapshot = await challengesCollection.orderBy('createdAt').get();
+  // --- Lógica para cambiar el idioma del texto inferior ---
+  // Ahora es un ciclo independiente y más lento para que dé tiempo a leer.
+  if (weddingInfo) {
+    setInterval(() => {
+      weddingInfo.classList.toggle("lang-en");
+    }, 4000); // Cambia de idioma cada 4 segundos.
+  }
 
-            if (snapshot.empty) {
-                console.log("Colección de retos vacía. Populando desde la lista local...");
-                const initialChallenges = [
-                    { text_es: "Hazte un selfie con 5 personas que no conozcas.", text_en: "Take a selfie with 5 people you don’t know." },
-                    { text_es: "Consigue que alguien te enseñe su mejor paso de baile.", text_en: "Get someone to show you their best dance move." },
-                    { text_es: "Habla con alguien durante 2 minutos con acento exagerado.", text_en: "Talk to someone for 2 minutes using an exaggerated accent." },
-                    { text_es: "Pide a un desconocido que te cuente cómo conoció a los novios.", text_en: "Ask a stranger to tell you how they met the couple." },
-                    { text_es: "Haz una pose dramática de telenovela en una foto.", text_en: "Do a dramatic soap-opera pose in a photo." },
-                    { text_es: "Imita el baile de los novios (aunque todavía no haya pasado).", text_en: "Imitate the couple’s first dance (even if it hasn’t happened yet)." },
-                    { text_es: "Haz reír a alguien contando un chiste malísimo.", text_en: "Make someone laugh by telling a terrible joke." },
-                    { text_es: "Consigue que 3 personas levanten sus copas contigo.", text_en: "Get 3 people to raise their glasses with you." },
-                    { text_es: "Saluda a alguien como si fuera una celebridad famosa.", text_en: "Greet someone as if they were a famous celebrity." },
-                    { text_es: "Canta una frase de una canción romántica a alguien.", text_en: "Sing a line from a romantic song to someone." },
-                    { text_es: "Baila 30 segundos con alguien que tenga más de 60 años.", text_en: "Dance for 30 seconds with someone over 60." },
-                    { text_es: "Forma un mini grupo de baile con 4 personas.", text_en: "Form a mini dance group with 4 people." },
-                    { text_es: "Haz el baile más ridículo posible durante 10 segundos.", text_en: "Do the silliest dance you can for 10 seconds." },
-                    { text_es: "Baila una canción sin mover los pies.", text_en: "Dance to a song without moving your feet." },
-                    { text_es: "Enseña a alguien un paso inventado por ti.", text_en: "Teach someone a dance move you invented." },
-                    { text_es: "Haz una foto con alguien que lleve algo azul.", text_en: "Take a photo with someone wearing something blue." },
-                    { text_es: "Haz una foto con los novios (si se dejan 😄).", text_en: "Take a photo with the couple (if they let you 😄)." },
-                    { text_es: "Haz una foto saltando con un grupo.", text_en: "Take a jumping group photo." },
-                    { text_es: "Haz una foto con alguien del lado contrario de la familia.", text_en: "Take a photo with someone from the other side of the family." },
-                    { text_es: "Recrea una escena romántica de película.", text_en: "Recreate a romantic movie scene." },
-                    { text_es: "Brinda con alguien que hayas conocido hoy.", text_en: "Make a toast with someone you met today." },
-                    { text_es: "Pregunta a alguien su mejor consejo para los novios.", text_en: "Ask someone for their best advice for the couple." },
-                    { text_es: "Encuentra a alguien que haya viajado más lejos para la boda.", text_en: "Find someone who traveled the farthest for the wedding." },
-                    { text_es: "Consigue que alguien te cuente una anécdota de los novios.", text_en: "Get someone to tell you a story about the couple." },
-                    { text_es: "Convence a alguien para que salga a bailar contigo ahora mismo.", text_en: "Convince someone to come dance with you right now." },
-                    { text_es: "Consigue que 5 personas hagan un tren contigo.", text_en: "Get 5 people to form a dance train with you." },
-                    { text_es: "Pide a alguien que te enseñe su mejor cara para selfies.", text_en: "Ask someone to show you their best selfie face." },
-                    { text_es: "Haz una foto fingiendo llorar de emoción.", text_en: "Take a photo pretending to cry with emotion." },
-                    { text_es: "Encuentra a alguien con los mismos zapatos que tú.", text_en: "Find someone wearing the same shoes as you." },
-                    { text_es: "Organiza un aplauso colectivo inesperado.", text_en: "Start a spontaneous group applause." }
-                ];
+  // --- Carga inicial de datos y asignación de eventos ---
+  const initializeApp = async () => {
+    const challengesCollection = db.collection("challenges");
+    try {
+      const snapshot = await challengesCollection.orderBy("createdAt").get();
 
-                const batch = db.batch();
-                initialChallenges.forEach((challenge, index) => {
-                    const docRef = challengesCollection.doc();
-                    batch.set(docRef, { ...challenge, createdAt: firebase.firestore.Timestamp.fromMillis(Date.now() + index) });
-                });
-                await batch.commit();
-                return initializeApp(); // Re-ejecutar para cargar los retos recién creados
-            } else {
-                challenges = snapshot.docs.map(doc => `${doc.data().text_es}\n${doc.data().text_en}`);
-                console.log(`${challenges.length} retos cargados desde Firestore.`);
-            }
-        } catch (error) {
-            console.error("Error al cargar los retos:", error);
-        }
-        // Una vez cargados los retos, asignamos el evento al formulario
-        memoryForm.addEventListener('submit', handleFormSubmit);
-    };
+      if (snapshot.empty) {
+        console.log(
+          "Colección de retos vacía. Populando desde la lista local...",
+        );
+        const initialChallenges = [
+          {
+            text_es: "Hazte un selfie con 5 personas que no conozcas.",
+            text_en: "Take a selfie with 5 people you don’t know.",
+          },
+          {
+            text_es: "Consigue que alguien te enseñe su mejor paso de baile.",
+            text_en: "Get someone to show you their best dance move.",
+          },
+          {
+            text_es:
+              "Habla con alguien durante 2 minutos con acento exagerado.",
+            text_en:
+              "Talk to someone for 2 minutes using an exaggerated accent.",
+          },
+          {
+            text_es:
+              "Pide a un desconocido que te cuente cómo conoció a los novios.",
+            text_en: "Ask a stranger to tell you how they met the couple.",
+          },
+          {
+            text_es: "Haz una pose dramática de telenovela en una foto.",
+            text_en: "Do a dramatic soap-opera pose in a photo.",
+          },
+          {
+            text_es:
+              "Imita el baile de los novios (aunque todavía no haya pasado).",
+            text_en:
+              "Imitate the couple’s first dance (even if it hasn’t happened yet).",
+          },
+          {
+            text_es: "Haz reír a alguien contando un chiste malísimo.",
+            text_en: "Make someone laugh by telling a terrible joke.",
+          },
+          {
+            text_es: "Consigue que 3 personas levanten sus copas contigo.",
+            text_en: "Get 3 people to raise their glasses with you.",
+          },
+          {
+            text_es: "Saluda a alguien como si fuera una celebridad famosa.",
+            text_en: "Greet someone as if they were a famous celebrity.",
+          },
+          {
+            text_es: "Canta una frase de una canción romántica a alguien.",
+            text_en: "Sing a line from a romantic song to someone.",
+          },
+          {
+            text_es: "Baila 30 segundos con alguien que tenga más de 60 años.",
+            text_en: "Dance for 30 seconds with someone over 60.",
+          },
+          {
+            text_es: "Forma un mini grupo de baile con 4 personas.",
+            text_en: "Form a mini dance group with 4 people.",
+          },
+          {
+            text_es: "Haz el baile más ridículo posible durante 10 segundos.",
+            text_en: "Do the silliest dance you can for 10 seconds.",
+          },
+          {
+            text_es: "Baila una canción sin mover los pies.",
+            text_en: "Dance to a song without moving your feet.",
+          },
+          {
+            text_es: "Enseña a alguien un paso inventado por ti.",
+            text_en: "Teach someone a dance move you invented.",
+          },
+          {
+            text_es: "Haz una foto con alguien que lleve algo azul.",
+            text_en: "Take a photo with someone wearing something blue.",
+          },
+          {
+            text_es: "Haz una foto con los novios (si se dejan 😄).",
+            text_en: "Take a photo with the couple (if they let you 😄).",
+          },
+          {
+            text_es: "Haz una foto saltando con un grupo.",
+            text_en: "Take a jumping group photo.",
+          },
+          {
+            text_es:
+              "Haz una foto con alguien del lado contrario de la familia.",
+            text_en:
+              "Take a photo with someone from the other side of the family.",
+          },
+          {
+            text_es: "Recrea una escena romántica de película.",
+            text_en: "Recreate a romantic movie scene.",
+          },
+          {
+            text_es: "Brinda con alguien que hayas conocido hoy.",
+            text_en: "Make a toast with someone you met today.",
+          },
+          {
+            text_es: "Pregunta a alguien su mejor consejo para los novios.",
+            text_en: "Ask someone for their best advice for the couple.",
+          },
+          {
+            text_es:
+              "Encuentra a alguien que haya viajado más lejos para la boda.",
+            text_en: "Find someone who traveled the farthest for the wedding.",
+          },
+          {
+            text_es:
+              "Consigue que alguien te cuente una anécdota de los novios.",
+            text_en: "Get someone to tell you a story about the couple.",
+          },
+          {
+            text_es:
+              "Convence a alguien para que salga a bailar contigo ahora mismo.",
+            text_en: "Convince someone to come dance with you right now.",
+          },
+          {
+            text_es: "Consigue que 5 personas hagan un tren contigo.",
+            text_en: "Get 5 people to form a dance train with you.",
+          },
+          {
+            text_es: "Pide a alguien que te enseñe su mejor cara para selfies.",
+            text_en: "Ask someone to show you their best selfie face.",
+          },
+          {
+            text_es: "Haz una foto fingiendo llorar de emoción.",
+            text_en: "Take a photo pretending to cry with emotion.",
+          },
+          {
+            text_es: "Encuentra a alguien con los mismos zapatos que tú.",
+            text_en: "Find someone wearing the same shoes as you.",
+          },
+          {
+            text_es: "Organiza un aplauso colectivo inesperado.",
+            text_en: "Start a spontaneous group applause.",
+          },
+        ];
 
-    initializeApp();
+        const batch = db.batch();
+        initialChallenges.forEach((challenge, index) => {
+          const docRef = challengesCollection.doc();
+          batch.set(docRef, {
+            ...challenge,
+            createdAt: firebase.firestore.Timestamp.fromMillis(
+              Date.now() + index,
+            ),
+          });
+        });
+        await batch.commit();
+        return initializeApp(); // Re-ejecutar para cargar los retos recién creados
+      } else {
+        challenges = snapshot.docs.map(
+          (doc) => `${doc.data().text_es}\n${doc.data().text_en}`,
+        );
+        console.log(`${challenges.length} retos cargados desde Firestore.`);
+      }
+    } catch (error) {
+      console.error("Error al cargar los retos:", error);
+    }
+    // Una vez cargados los retos, asignamos el evento al formulario
+    memoryForm.addEventListener("submit", handleFormSubmit);
+  };
+
+  initializeApp();
 });
