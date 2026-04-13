@@ -13,8 +13,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh; /* Altura dinámica que descuenta las barras del navegador */
     padding: 20px;
+    overflow: hidden; /* Evita scrolls accidentales que muestran la barra */
 }
 
 .welcome-section {
