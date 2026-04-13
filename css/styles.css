@@ -65,7 +65,7 @@ body {
 
 .card-front {
     /* La cara frontal tiene la imagen de fondo */
-    background-image: url('../img/portada2.jpg');
+    background-image: url('../img/portada4.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -86,7 +86,7 @@ body {
 
 /* La cara trasera con el formulario */
 .card-back {
-    background-color: #2c3e50;
+    background-color: rgb(52, 96, 81);
     color: white;
     /* Solución para iOS: movemos la cara trasera 1px hacia "adelante" en el espacio 3D
        para evitar el "z-fighting" (conflicto de renderizado) que causa la transparencia.
@@ -110,7 +110,7 @@ body {
     right: 0;
     z-index: 20;
     text-align: center;
-    color: rgb(130, 160, 160);
+    color: white;
     text-shadow: 0 2px 5px rgba(0,0,0,0.6);
     font-family: 'Dancing Script', cursive;
     font-weight: 700;
@@ -158,29 +158,29 @@ body {
 
 /* Estilos y variables de animación para cada idioma */
 .lang-1 {
-    color: #8dc3d2;
+    color: #ffffff;
     font-size: 1.4em; /* Ajustamos el tamaño relativo de la principal */
     z-index: 10;
     animation-delay: 1s;
 }
 
 .lang-2 {
-    color: #ffc0cb; /* Rosa pastel */
+    color: #ffffff; /* Blanco */
     animation-delay: 3s; /* Ajustamos el retardo para la nueva duración */
 }
 
 .lang-3 {
-    color: #f0e68c; /* Caqui claro (dorado suave) */
+    color: #ffffff; /* Blanco */
     animation-delay: 5s; /* Ajustamos el retardo para la nueva duración */
 }
 
 .lang-4 {
-    color: #add8e6; /* Azul claro */
+    color: #ffffff; /* Blanco */
     animation-delay: 7s; /* Ajustamos el retardo para la nueva duración */
 }
 
 .lang-5 {
-    color: #98fb98; /* Verde pálido */
+    color: #ffffff; /* Blanco */
     animation-delay: 9s; /* Ajustamos el retardo para la nueva duración */
 }
 
@@ -206,9 +206,8 @@ body {
 }
 
 .wedding-message {
-    /* 3. Cambiamos la fuente a una más elegante y cursiva */
-    font-family: 'Dancing Script', cursive;
-    font-size: 1.5em;
+    font-family: 'Antic Didone', serif;
+    font-size: 1.3em; /* Reducido un par de puntos */
     line-height: 1.4;
     font-style: italic;
     min-height: 60px; /* Evita que el botón "salte" al cambiar el texto */
@@ -406,7 +405,7 @@ body {
     border: none;
     background-color: white;
     color: #333;
-    font-family: 'Lato', sans-serif;
+    font-family: 'Antic Didone', serif;
     font-size: 1em;
     resize: none;
     overflow-y: auto;
@@ -437,10 +436,22 @@ body {
     background-color: transparent;
     border: 1px solid rgba(255, 255, 255, 0.5);
     color: white;
-    padding: 8px 15px;
-    border-radius: 20px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+#upload-photo-button:hover {
+    background-color: rgba(240, 230, 140, 0.2);
+    border-color: #f0e68c;
+    transform: scale(1.1);
 }
 
 #image-preview-container {
@@ -591,7 +602,8 @@ body {
     }
 
     .card-front {
-        background-size: 100% 100%; /* Estira la imagen a lo alto y ancho (puede deformarse) */
+        background-size: cover; /* Mantiene la proporción y enfoca el centro */
+        background-position: center;
     }
 }
 
@@ -684,6 +696,12 @@ body {
     display: flex;
     flex-direction: column;
     break-inside: avoid; /* Evita que la tarjeta se corte en el PDF */
+}
+
+.memory-message {
+    font-family: 'Antic Didone', serif;
+    font-size: 1.1em;
+    line-height: 1.5;
 }
 
 /* Borde dorado para las tarjetas que son pruebas de retos */
@@ -1041,7 +1059,7 @@ body {
 }
 
 .challenge-card p {
-    font-family: 'Lato', sans-serif;
+    font-family: 'Antic Didone', serif;
     font-size: 1.5em;
     line-height: 1.6;
     font-weight: 400;

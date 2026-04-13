@@ -497,6 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     border-bottom: 1px solid #eee;
                 }
                 .pdf-memory-item .pdf-message {
+                    font-family: 'Antic Didone', serif;
                     font-size: 0.9em;
                     line-height: 1.5;
                 }

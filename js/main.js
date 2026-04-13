@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Deshabilitar el botón mientras se procesan los archivos para dar feedback
     uploadPhotoButton.disabled = true;
-    uploadPhotoButton.textContent = "Procesando...";
+    uploadPhotoButton.textContent = "⏳";
 
     for (const originalFile of newFiles) {
       let fileToProcess = originalFile;
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     // Reactivar el botón y limpiar el input para poder seleccionar más archivos
     uploadPhotoButton.disabled = false;
-    uploadPhotoButton.textContent = "Añadir foto";
+    uploadPhotoButton.textContent = "📷";
     photoUploadInput.value = null;
   });
 
