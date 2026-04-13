@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
         previewContainer.innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
         confirmBtn.style.display = "inline-block";
         selectPhotoBtn.disabled = false;
-        selectPhotoBtn.innerHTML = "Cambiar foto<br>Change photo";
+        selectPhotoBtn.innerHTML = "Cambiar Foto<br>Change Photo";
       };
       reader.readAsDataURL(selectedFile);
     }

@@ -297,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     // Reactivar el botón y limpiar el input para poder seleccionar más archivos
     uploadPhotoButton.disabled = false;
-    uploadPhotoButton.textContent = "📷";
+    uploadPhotoButton.textContent = "+ Foto";
     photoUploadInput.value = null;
   });
 
