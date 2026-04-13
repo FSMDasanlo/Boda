@@ -1,159 +1,178 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar Firebase
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+document.addEventListener("DOMContentLoaded", () => {
+  // Inicializar Firebase
+  const db = firebase.firestore();
+  const storage = firebase.storage();
 
-    // Emuladores (si estás en local)
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        db.useEmulator("localhost", 8080);
-        storage.useEmulator("localhost", 9199);
+  // Emuladores (si estás en local)
+  if (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.port === "5000"
+  ) {
+    db.useEmulator("localhost", 8080);
+    storage.useEmulator("localhost", 9199);
+  }
+
+  const challengeTextElement = document.getElementById("challenge-text");
+  const uploadSection = document.getElementById("challenge-upload-section");
+  const photoInput = document.getElementById("challenge-photo");
+  const selectPhotoBtn = document.getElementById("select-photo-btn");
+  const confirmBtn = document.getElementById("confirm-upload-btn");
+  const previewContainer = document.getElementById("preview-container");
+  const skipChallengeBtn = document.querySelector(".skip-challenge-btn");
+
+  const params = new URLSearchParams(window.location.search);
+  const reto = params.get("reto");
+  const guestName = params.get("name");
+
+  if (challengeTextElement) {
+    if (reto) {
+      challengeTextElement.innerHTML = reto.replace(/\n/g, "<br><br>");
+      // Si hay reto, mostramos la sección de subida Y el botón de saltar
+      if (uploadSection) uploadSection.style.display = "block";
+      if (skipChallengeBtn) skipChallengeBtn.style.display = "inline-block";
+    } else {
+      challengeTextElement.textContent =
+        "Parece que no hay ningún reto asignado. ¡Disfruta de la fiesta!";
+      // Si no hay reto, nos aseguramos de que todo esté oculto
+      if (uploadSection) uploadSection.style.display = "none";
+      if (skipChallengeBtn) skipChallengeBtn.style.display = "none";
     }
+  }
 
-    const challengeTextElement = document.getElementById('challenge-text');
-    const uploadSection = document.getElementById('challenge-upload-section');
-    const photoInput = document.getElementById('challenge-photo');
-    const selectPhotoBtn = document.getElementById('select-photo-btn');
-    const confirmBtn = document.getElementById('confirm-upload-btn');
-    const previewContainer = document.getElementById('preview-container');
-    const skipChallengeBtn = document.querySelector('.skip-challenge-btn');
+  // --- Lógica para saltar el reto ---
+  if (skipChallengeBtn && guestName && reto) {
+    skipChallengeBtn.addEventListener("click", async (e) => {
+      e.preventDefault(); // Prevenir la navegación inmediata del href
 
-    const params = new URLSearchParams(window.location.search);
-    const reto = params.get('reto');
-    const guestName = params.get('name');
+      // Ocultar inmediatamente los controles para evitar doble acción
+      if (uploadSection) uploadSection.style.display = "none";
+      skipChallengeBtn.style.display = "none";
 
-    if (challengeTextElement) {
-        if (reto) {
-            challengeTextElement.innerHTML = reto.replace(/\n/g, '<br><br>');
-            // Si hay reto, mostramos la sección de subida Y el botón de saltar
-            if (uploadSection) uploadSection.style.display = 'block';
-            if (skipChallengeBtn) skipChallengeBtn.style.display = 'inline-block';
-        } else {
-            challengeTextElement.textContent = 'Parece que no hay ningún reto asignado. ¡Disfruta de la fiesta!';
-            // Si no hay reto, nos aseguramos de que todo esté oculto
-            if (uploadSection) uploadSection.style.display = 'none';
-            if (skipChallengeBtn) skipChallengeBtn.style.display = 'none';
-        }
-    }
+      // 1. Mostrar mensaje de "despedida" gracioso
+      const h1 = document.querySelector(".challenge-container h1");
+      const challengeCard = document.querySelector(".challenge-card");
 
-    // --- Lógica para saltar el reto ---
-    if (skipChallengeBtn && guestName && reto) {
-        skipChallengeBtn.addEventListener('click', async (e) => {
-            e.preventDefault(); // Prevenir la navegación inmediata del href
+      if (h1) h1.innerHTML = "¡Gallina! 🐔<br>Chicken!";
+      if (challengeCard)
+        challengeCard.innerHTML = `<p style="font-size: 1.2em; line-height: 1.5;">No pasa nada, te queremos igual.<br><em>It's okay, we love you anyway.</em><br><br>Volviendo a la fiesta...</p>`;
 
-            // Ocultar inmediatamente los controles para evitar doble acción
-            if (uploadSection) uploadSection.style.display = 'none';
-            skipChallengeBtn.style.display = 'none';
-
-            // 1. Mostrar mensaje de "despedida" gracioso
-            const h1 = document.querySelector('.challenge-container h1');
-            const challengeCard = document.querySelector('.challenge-card');
-            
-            if (h1) h1.innerHTML = "¡Gallina! 🐔<br>Chicken!";
-            if (challengeCard) challengeCard.innerHTML = `<p style="font-size: 1.2em; line-height: 1.5;">No pasa nada, te queremos igual.<br><em>It's okay, we love you anyway.</em><br><br>Volviendo a la fiesta...</p>`;
-            
-            // 2. Registrar que se ha saltado el reto en Firestore (en segundo plano)
-            try {
-                await db.collection('skipped_challenges').add({
-                    guestName: guestName,
-                    challenge: reto,
-                    skippedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            } catch (error) {
-                console.error("Error al registrar el reto saltado:", error);
-                // No es un error crítico para el usuario, continuamos
-            }
-
-            // 3. Redirigir a la página principal después de unos segundos
-            setTimeout(() => { window.location.href = 'index.html'; }, 4000);
+      // 2. Registrar que se ha saltado el reto en Firestore (en segundo plano)
+      try {
+        await db.collection("skipped_challenges").add({
+          guestName: guestName,
+          challenge: reto,
+          skippedAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
+      } catch (error) {
+        console.error("Error al registrar el reto saltado:", error);
+        // No es un error crítico para el usuario, continuamos
+      }
+
+      // 3. Redirigir a la página principal después de unos segundos
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 4000);
+    });
+  }
+
+  // --- Lógica de subida de foto ---
+  let selectedFile = null;
+
+  selectPhotoBtn.addEventListener("click", () => photoInput.click());
+
+  photoInput.addEventListener("change", async (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const originalFile = e.target.files[0];
+
+      // Feedback visual mientras se procesa la imagen
+      selectPhotoBtn.disabled = true;
+      confirmBtn.style.display = "none";
+      selectPhotoBtn.innerHTML = "Procesando...<br>Processing...";
+      previewContainer.innerHTML = ""; // Limpiar vista previa anterior
+
+      let fileToUpload = originalFile;
+
+      // Comprimir si es una imagen (y no un GIF)
+      if (
+        originalFile.type.startsWith("image/") &&
+        !originalFile.type.includes("gif")
+      ) {
+        const options = {
+          maxSizeMB: 0.5,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+        };
+        try {
+          const compressedBlob = await imageCompression(originalFile, options);
+          fileToUpload = new File([compressedBlob], originalFile.name, {
+            type: compressedBlob.type,
+            lastModified: Date.now(),
+          });
+        } catch (error) {
+          console.error(
+            "Error al comprimir la imagen, se usará el original:",
+            error,
+          );
+        }
+      }
+
+      selectedFile = fileToUpload; // Guardar el archivo (comprimido o no)
+
+      // Mostrar vista previa
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        previewContainer.innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
+        confirmBtn.style.display = "inline-block";
+        selectPhotoBtn.disabled = false;
+        selectPhotoBtn.innerHTML = "Cambiar foto<br>Change photo";
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  });
+
+  confirmBtn.addEventListener("click", async () => {
+    if (!selectedFile) return;
+    if (!guestName) {
+      alert(
+        "No se ha podido identificar tu nombre. Vuelve a intentarlo desde el inicio.",
+      );
+      return;
     }
 
-    // --- Lógica de subida de foto ---
-    let selectedFile = null;
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = "Subiendo...<br>Uploading...";
 
-    selectPhotoBtn.addEventListener('click', () => photoInput.click());
+    try {
+      // 1. Subir foto a Storage
+      // SOLUCIÓN: Usamos la carpeta 'memories' que ya tiene permisos de escritura públicos.
+      const filePath = `memories/${Date.now()}_challenge_${selectedFile.name}`;
+      const fileRef = storage.ref().child(filePath);
+      // AÑADIDO: Especificamos el tipo de contenido para que las reglas de seguridad funcionen.
+      await fileRef.put(selectedFile, { contentType: selectedFile.type });
+      const downloadURL = await fileRef.getDownloadURL();
 
-    photoInput.addEventListener('change', async (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const originalFile = e.target.files[0];
+      // 2. Guardar en Firestore como un nuevo recuerdo especial
+      await db.collection("memories").add({
+        guestName: guestName,
+        messageHTML: `<strong>¡Reto completado! / Challenge complete!</strong><br><br><em>${reto.replace(/\n/g, " ")}</em>`,
+        imageUrls: [downloadURL],
+        challenge: reto,
+        isChallengeProof: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
 
-            // Feedback visual mientras se procesa la imagen
-            selectPhotoBtn.disabled = true;
-            confirmBtn.style.display = 'none';
-            selectPhotoBtn.innerHTML = 'Procesando...<br>Processing...';
-            previewContainer.innerHTML = ''; // Limpiar vista previa anterior
-
-            let fileToUpload = originalFile;
-
-            // Comprimir si es una imagen (y no un GIF)
-            if (originalFile.type.startsWith('image/') && !originalFile.type.includes('gif')) {
-                const options = {
-                    maxSizeMB: 0.5,
-                    maxWidthOrHeight: 1920,
-                    useWebWorker: true,
-                };
-                try {
-                    const compressedBlob = await imageCompression(originalFile, options);
-                    fileToUpload = new File([compressedBlob], originalFile.name, {
-                        type: compressedBlob.type,
-                        lastModified: Date.now(),
-                    });
-                } catch (error) {
-                    console.error("Error al comprimir la imagen, se usará el original:", error);
-                }
-            }
-
-            selectedFile = fileToUpload; // Guardar el archivo (comprimido o no)
-
-            // Mostrar vista previa
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                previewContainer.innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
-                confirmBtn.style.display = 'inline-block';
-                selectPhotoBtn.disabled = false;
-                selectPhotoBtn.innerHTML = 'Cambiar foto<br>Change photo';
-            };
-            reader.readAsDataURL(selectedFile);
-        }
-    });
-
-    confirmBtn.addEventListener('click', async () => {
-        if (!selectedFile) return;
-        if (!guestName) {
-            alert("No se ha podido identificar tu nombre. Vuelve a intentarlo desde el inicio.");
-            return;
-        }
-
-        confirmBtn.disabled = true;
-        confirmBtn.innerHTML = 'Subiendo...<br>Uploading...';
-
-        try {
-            // 1. Subir foto a Storage
-            // SOLUCIÓN: Usamos la carpeta 'memories' que ya tiene permisos de escritura públicos.
-            const filePath = `memories/${Date.now()}_challenge_${selectedFile.name}`;
-            const fileRef = storage.ref().child(filePath);
-            // AÑADIDO: Especificamos el tipo de contenido para que las reglas de seguridad funcionen.
-            await fileRef.put(selectedFile, { contentType: selectedFile.type });
-            const downloadURL = await fileRef.getDownloadURL();
-
-            // 2. Guardar en Firestore como un nuevo recuerdo especial
-            await db.collection('memories').add({
-                guestName: guestName,
-                messageHTML: `<strong>¡Reto completado! / Challenge complete!</strong><br><br><em>${reto.replace(/\n/g, ' ')}</em>`,
-                imageUrls: [downloadURL],
-                challenge: reto,
-                isChallengeProof: true,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            alert('¡Prueba subida con éxito! Eres un crack.\n\nProof uploaded successfully! You rock.');
-            window.location.href = 'index.html';
-
-        } catch (error) {
-            console.error("Error al subir prueba:", error);
-            alert('Hubo un error al subir la foto. Inténtalo de nuevo.\n\nThere was an error uploading the photo. Please try again.');
-            confirmBtn.disabled = false;
-            confirmBtn.innerHTML = 'Enviar Prueba<br>Send Proof';
-        }
-    });
+      alert(
+        "¡Prueba subida con éxito! Eres un crack.\n\nProof uploaded successfully! You rock.",
+      );
+      window.location.href = "index.html";
+    } catch (error) {
+      console.error("Error al subir prueba:", error);
+      alert(
+        "Hubo un error al subir la foto. Inténtalo de nuevo.\n\nThere was an error uploading the photo. Please try again.",
+      );
+      confirmBtn.disabled = false;
+      confirmBtn.innerHTML = "Enviar Prueba<br>Send Proof";
+    }
+  });
 });

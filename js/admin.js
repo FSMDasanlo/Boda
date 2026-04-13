@@ -29,7 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Conectar a Emuladores si se está en entorno local ---
   if (
     window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1"
+    window.location.hostname === "127.0.0.1" ||
+    window.location.port === "5000"
   ) {
     console.log("Entorno local detectado. Usando emuladores.");
     db.useEmulator("localhost", 8080);

@@ -86,8 +86,8 @@ body {
 
 /* La cara trasera con el formulario */
 .card-back {
-    background-color: rgb(52, 96, 81);
-    color: white;
+    background-color: rgb(200, 215, 185);
+    color: #333;
     /* Solución para iOS: movemos la cara trasera 1px hacia "adelante" en el espacio 3D
        para evitar el "z-fighting" (conflicto de renderizado) que causa la transparencia.
        El translateZ(0) anterior se cambia por translateZ(1px). */
@@ -209,7 +209,7 @@ body {
     font-family: 'Antic Didone', serif;
     font-size: 1.3em; /* Reducido un par de puntos */
     line-height: 1.4;
-    font-style: italic;
+    font-style: normal;
     min-height: 60px; /* Evita que el botón "salte" al cambiar el texto */
 }
 
@@ -303,7 +303,7 @@ body {
 }
 
 .name-input:focus {
-    outline: 2px solid #f0e68c;
+    outline: 2px solid rgb(52, 96, 81);
 }
 
 .editor-toolbar {
@@ -413,14 +413,14 @@ body {
 }
 
 .editable:focus {
-    outline: 2px solid #f0e68c;
+    outline: 2px solid rgb(52, 96, 81);
 }
 
 .char-counter {
     width: 100%;
     text-align: right;
     font-size: 0.85em;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.5);
     margin-top: -10px;
     margin-bottom: 10px;
 }
@@ -434,8 +434,8 @@ body {
 
 #upload-photo-button {
     background-color: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    color: white;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #333;
     width: 55px;
     height: 55px;
     padding: 0;
@@ -451,8 +451,8 @@ body {
 }
 
 #upload-photo-button:hover {
-    background-color: rgba(240, 230, 140, 0.2);
-    border-color: #f0e68c;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-color: rgb(52, 96, 81);
     transform: scale(1.1);
 }
 
@@ -502,21 +502,21 @@ body {
 }
 
 .submit-button {
-    background-color: #f0e68c;
-    color: #333;
+    background-color: rgb(52, 96, 81);
+    color: white;
 }
 
 .submit-button:hover {
-    background-color: #e9de82; /* Tono ligeramente más oscuro */
+    background-color: rgb(42, 76, 65);
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
 .back-button {
     background-color: transparent;
-    color: white;
+    color: #333;
     margin-top: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 /* Estilos para la animación de confirmación */
@@ -558,7 +558,7 @@ body {
     height: 80px;
     border: 8px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    border-top-color: #f0e68c; /* Color a juego con el botón de enviar */
+    border-top-color: rgb(52, 96, 81); /* Color a juego con el botón de enviar */
     animation: spin 1s ease-in-out infinite;
 }
 
@@ -1028,7 +1028,7 @@ body {
 
 /* --- Estilos para la página de Retos --- */
 .challenge-body {
-    background-color: #2c3e50; /* Mismo fondo que la cara trasera */
+    background-color: rgb(139, 156, 111);
     display: flex;
     justify-content: center;
     align-items: center;
