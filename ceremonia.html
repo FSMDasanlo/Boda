@@ -44,7 +44,7 @@
             db.collection("settings").doc("status").onSnapshot((doc) => {
                 const isActive = doc.exists && doc.data().isCeremonyActive;
                 if (isActive) {
-                    statusText.innerHTML = "<strong>LA CEREMONIA ESTÁ ACTIVA</strong><br>Los invitados verán el enlace a Canva.";
+                    statusText.innerHTML = "<strong>LA CEREMONIA ESTÁ ACTIVA</strong><br>Los invitados verán el enlace a los discursos.";
                     startBtn.style.display = "none";
                     endBtn.style.display = "block";
                 } else {

@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (card) card.classList.remove("is-flipped");
           } else {
             // Restaurar comportamiento original
-            if (textEs) textEs.textContent = "Déjanos un recuerdo";
+            if (textEs) textEs.textContent = "Déjanos un mensaje";
             if (textEn) textEn.textContent = "Leave a message";
 
             flipButton.href = "#";
@@ -420,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
       confirmationMessage.innerHTML = `
                   <div class="confirmation-icon-loading"></div>
                   <h2>¡Gracias, ${friendlyGuestName}!</h2>
-                  <p>Eres la persona n.º ${newCount} en dejarnos un recuerdo.</p>
+                  <p>Eres la persona n.º ${newCount} en dejarnos un mensaje.</p>
                   <p class="sending-info">${savingInfoEs}<br><em style="opacity:0.8; font-size:0.9em;">${savingInfoEn}</em></p>
               `;
 
@@ -433,9 +433,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // 4. Flujo normal: El mensaje se queda hasta que el usuario pulsa el botón
       confirmationMessage.innerHTML = `
                   <div class="confirmation-icon">&#10004;</div>
-                  <h2>¡Recuerdo guardado!</h2>
+                  <h2>¡Mensaje enviado!</h2>
                   <p>Gracias por formar parte de nuestro día.</p>
-                  <p style="font-size: 1em; opacity: 0.8; margin-top: 5px;"><em>Memory saved! Thank you for being part of our day.</em></p>
+                  <p style="font-size: 1em; opacity: 0.8; margin-top: 5px;"><em>Message sent! Thank you for being part of our day.</em></p>
                   <button type="button" id="close-success-btn" class="submit-button" style="margin-top: 20px;">Hecho / Done</button>
               `;
       const icon = confirmationMessage.querySelector(".confirmation-icon");
@@ -463,7 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
       confirmationMessage.innerHTML = `
                 <div class="confirmation-icon" style="color: #ff4d4d;">&times;</div>
                 <h2>¡Ups! Hubo un error</h2>
-                <p>No se pudo guardar tu recuerdo. Por favor, inténtalo de nuevo en un momento.</p>
+                <p>No se pudo enviar tu mensaje. Por favor, inténtalo de nuevo en un momento.</p>
             `;
       const errorIcon = confirmationMessage.querySelector(".confirmation-icon");
       if (errorIcon)
