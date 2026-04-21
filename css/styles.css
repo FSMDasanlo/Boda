@@ -39,8 +39,7 @@ body {
     height: 650px;
     perspective: 1500px; /* Añadimos perspectiva para el efecto 3D */
     position: relative;
-    overflow: hidden;
-    border-radius: 25px;
+    border-radius: 30px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
     overflow: visible; /* Permitimos que la sombra se vea bien */
 }
@@ -74,8 +73,8 @@ body {
     height: 100%;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    border-radius: 25px;
-    /* overflow: hidden; */ /* Desactivado para permitir que los desplegables (select) se vean */
+    border-radius: 30px;
+    overflow: hidden; /* Asegura que la imagen y el gradiente inferior se recorten para redondear las esquinas */
 }
 
 .card-front {
@@ -97,7 +96,7 @@ body {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 25px; /* Ajuste para que el oscurecimiento no se salga de las esquinas */
+    border-radius: 30px; /* Ajuste para que el oscurecimiento no se salga de las esquinas */
 }
 
 /* La cara trasera con el formulario */
@@ -582,15 +581,15 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(74, 86, 56, 0.95);
+    background-color: var(--olive-dark); /* Color sólido para evitar transparencias con el frente */
     z-index: 100;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: white;
-    border-radius: 25px;
+    color: var(--cream);
+    border-radius: 30px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease;
@@ -612,9 +611,9 @@ body {
     display: inline-block;
     width: 80px;
     height: 80px;
-    border: 8px solid rgba(255, 255, 255, 0.3);
+    border: 6px solid rgba(245, 240, 232, 0.2);
     border-radius: 50%;
-    border-top-color: rgb(52, 96, 81); /* Color a juego con el botón de enviar */
+    border-top-color: var(--beige-mid);
     animation: spin 1s ease-in-out infinite;
 }
 
@@ -623,10 +622,11 @@ body {
     font-style: italic;
     font-size: 2.5em;
     margin-top: 20px;
+    color: var(--beige-mid);
 }
 
 .confirmation-message p {
-    font-size: 1.2em;
+    font-size: 1.1em;
     margin-top: 10px;
     font-family: 'Jost', sans-serif;
     max-width: 80%;
@@ -638,6 +638,16 @@ body {
     font-size: 0.9em;
     opacity: 0.8;
     margin-top: 20px;
+}
+
+/* Ajuste del botón dentro del mensaje de confirmación para que contraste */
+.confirmation-message .submit-button {
+    background-color: var(--cream);
+    color: var(--olive-dark);
+    font-weight: 500;
+    width: auto;
+    min-width: 160px;
+    padding: 0.7rem 1.5rem;
 }
 /* Responsive Design */
 @media (max-width: 768px) {
