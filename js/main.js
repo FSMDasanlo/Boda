@@ -239,6 +239,12 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadPhotoButton.textContent = "⏳";
 
     for (const originalFile of newFiles) {
+      // Validar tamaño original (evitar colapsar el navegador con archivos de >10MB)
+      if (originalFile.size > 10 * 1024 * 1024) {
+        alert(`La foto "${originalFile.name}" es demasiado pesada (máx 10MB).`);
+        continue;
+      }
+
       let fileToProcess = originalFile;
 
       // Comprimir si es una imagen (y no un GIF animado, que perdería la animación)
@@ -247,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
         !fileToProcess.type.includes("gif")
       ) {
         const options = {
-          maxSizeMB: 0.5, // Comprimir a un máximo de 500KB
+          maxSizeMB: 0.3, // Reducimos a 300KB para optimizar espacio en base de datos
           maxWidthOrHeight: 1920, // Redimensionar si es más grande para no exceder HD
           useWebWorker: true,
         };
@@ -298,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     // Reactivar el botón y limpiar el input para poder seleccionar más archivos
     uploadPhotoButton.disabled = false;
-    uploadPhotoButton.textContent = "+ Foto";
+    uploadPhotoButton.textContent = "+ Photo";
     photoUploadInput.value = null;
   });
 

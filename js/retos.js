@@ -85,6 +85,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.files && e.target.files[0]) {
       const originalFile = e.target.files[0];
 
+      // Validar tamaño original
+      if (originalFile.size > 10 * 1024 * 1024) {
+        alert("La foto es demasiado grande. Por favor, selecciona una de menos de 10MB.");
+        photoInput.value = ""; 
+        return;
+      }
+
       // Feedback visual mientras se procesa la imagen
       selectPhotoBtn.disabled = true;
       confirmBtn.style.display = "none";
@@ -99,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
         !originalFile.type.includes("gif")
       ) {
         const options = {
-          maxSizeMB: 0.5,
+          maxSizeMB: 0.3, // Optimización de peso para la base de datos
           maxWidthOrHeight: 1920,
           useWebWorker: true,
         };

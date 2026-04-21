@@ -467,8 +467,8 @@ body {
     padding: 10px 15px;
     border-radius: 25px;
     cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 700;
+    font-size: 0.85rem;
+    font-weight: 400;
     display: flex;
     justify-content: center;
     align-items: center;
