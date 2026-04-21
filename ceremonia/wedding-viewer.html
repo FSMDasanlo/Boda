@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manu & Dani • 06.06.2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --beige-light: #f5f0e8;
+    --beige-mid: #e8dcc8;
+    --beige-dark: #c9b89a;
+    --olive-light: #8a9a6a;
+    --olive-mid: #6b7a52;
+    --olive-dark: #4a5638;
+    --brown-light: #c4a882;
+    --brown-mid: #8b6b47;
+    --brown-dark: #5c4530;
+    --text-dark: #3a3228;
+    --text-mid: #6b5d4f;
+    --text-light: #9a8878;
+    --cream: #faf6ef;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Jost', sans-serif;
+    background: var(--beige-light);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  /* ─── LANDING ─── */
+  #landing {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--cream);
+    position: relative;
+    overflow: hidden;
+    padding: 2rem;
+  }
+
+  #landing::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 110%, rgba(138,154,106,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 20% 0%, rgba(201,184,154,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 85% 5%, rgba(201,184,154,0.2) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .landing-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 600px;
+  }
+
+  .landing-date-line {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .landing-date-line::before,
+  .landing-date-line::after {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: var(--beige-dark);
+  }
+
+  .landing-date {
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-light);
+  }
+
+  .landing-names {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(3.2rem, 14vw, 6.5rem);
+    line-height: 0.95;
+    color: var(--olive-dark);
+    letter-spacing: -0.01em;
+  }
+
+  .landing-names em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--olive-dark);
+  }
+
+  /* & same color as names */
+  .landing-amp {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(2rem, 8vw, 4rem);
+    color: var(--olive-dark);
+    display: block;
+    margin: 0.1em 0;
+  }
+
+  .landing-tagline {
+    margin-top: 2rem;
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.8rem, 3vw, 0.9rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-light);
+  }
+
+  .waiting-pulse {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 3rem;
+  }
+
+  .waiting-pulse span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--beige-dark);
+    animation: pulse-dot 1.4s ease-in-out infinite;
+  }
+
+  .waiting-pulse span:nth-child(2) { animation-delay: 0.2s; }
+  .waiting-pulse span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse-dot {
+    0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+    40% { transform: scale(1.1); opacity: 1; }
+  }
+
+  /* ─── MAIN VIEW ─── */
+  #main-view {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    background: var(--cream);
+  }
+
+  .main-header {
+    padding: 1.5rem 1.5rem 0;
+    text-align: center;
+  }
+
+  .main-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(1.6rem, 6vw, 2.4rem);
+    color: var(--olive-dark);
+    letter-spacing: 0.02em;
+  }
+
+  .main-header p {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-top: 0.3rem;
+  }
+
+  /* ─── POT SECTION ─── */
+  .pot-section {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 1.2rem 1rem 0;
+    flex-shrink: 0;
+  }
+
+  .pot-wrapper {
+    position: relative;
+    width: min(160px, 42vw);
+  }
+
+  .pot-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  /* ─── LAYER LABELS ─── */
+  .layer-labels {
+    position: absolute;
+    top: 4%;
+    right: -105px;
+    bottom: 3%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 6%;
+  }
+
+  @media (max-width: 480px) {
+    .layer-labels { display: none; }
+  }
+
+  .layer-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    opacity: 0;
+    transform: translateX(8px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    height: 14.5%;
+    padding-top: 2px;
+  }
+
+  .layer-label.visible { opacity: 1; transform: translateX(0); }
+
+  .layer-label-line {
+    width: 16px;
+    height: 1px;
+    background: var(--beige-dark);
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+
+  .layer-label-text {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    white-space: nowrap;
+  }
+
+  /* ─── SPEECHES ─── */
+  .speeches-section {
+    padding: 1.5rem;
+    flex: 1;
+    max-width: 680px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .speeches-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 1.1rem;
+    color: var(--text-mid);
+    letter-spacing: 0.08em;
+    text-align: center;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .speeches-title::before,
+  .speeches-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--beige-mid);
+  }
+
+  /* ─── ACCORDION CARD ─── */
+  .speech-card {
+    background: white;
+    border: 1px solid var(--beige-mid);
+    border-radius: 12px;
+    margin-bottom: 0.55rem;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    animation: card-in 0.4s ease forwards;
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .speech-card.expanded {
+    border-color: var(--beige-dark);
+    box-shadow: 0 2px 14px rgba(74,86,56,0.07);
+  }
+
+  /* Header row */
+  .speech-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.1rem;
+    gap: 0.75rem;
+    min-height: 50px;
+  }
+
+  .speech-meta { flex: 1; min-width: 0; }
+
+  .speech-speaker {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--olive-dark);
+    line-height: 1.2;
+  }
+
+  .speech-role {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-top: 0.15rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease;
+    opacity: 0;
+  }
+
+  .speech-card.expanded .speech-role {
+    max-height: 40px;
+    opacity: 1;
+    margin-top: 0.15rem;
+  }
+
+  /* Language toggle — hidden when collapsed */
+  .lang-toggle {
+    display: flex;
+    background: var(--beige-light);
+    border-radius: 20px;
+    padding: 2px;
+    gap: 2px;
+    border: 1px solid var(--beige-mid);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .speech-card.expanded .lang-toggle {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .lang-btn {
+    background: none;
+    border: none;
+    padding: 3px 9px;
+    border-radius: 16px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .lang-btn.active {
+    background: white;
+    color: var(--olive-dark);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  /* Accordion body */
+  .speech-body-wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .speech-card.expanded .speech-body-wrap {
+    grid-template-rows: 1fr;
+  }
+
+  .speech-body-inner { overflow: hidden; }
+
+  .speech-divider {
+    height: 1px;
+    background: var(--beige-light);
+    margin: 0 1.1rem;
+  }
+
+  .speech-body {
+    padding: 1rem 1.1rem 1.25rem;
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    font-size: 0.9rem;
+    line-height: 1.78;
+    color: var(--text-mid);
+  }
+
+  .speech-text { display: none; }
+  .speech-text.active { display: block; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-light);
+  }
+
+  .empty-state svg {
+    width: 36px;
+    height: 36px;
+    opacity: 0.25;
+    margin: 0 auto 1rem;
+    display: block;
+  }
+
+  .empty-state p { font-size: 0.82rem; letter-spacing: 0.08em; }
+
+  /* Particle canvas */
+  #particle-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 999;
+  }
+</style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+
+<!-- ─── LANDING PAGE ─── -->
+<div id="landing">
+  <div class="landing-inner">
+    <div class="landing-date-line">
+      <span class="landing-date">06 · 06 · 2026</span>
+    </div>
+    <div class="landing-names">
+      <em>Manu</em>
+      <span class="landing-amp">&amp;</span>
+      <em>Dani</em>
+    </div>
+    <p class="landing-tagline">Bienvenidos a nuestra boda · Welcome to our wedding</p>
+    <div class="waiting-pulse">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MAIN VIEW ─── -->
+<div id="main-view">
+  <div class="main-header">
+    <h1>Manu &amp; Dani</h1>
+    <p>06 · 06 · 2026</p>
+  </div>
+
+  <div class="pot-section">
+    <div class="pot-wrapper">
+
+      <!--
+        RUSTIC TERRACOTTA POT SVG
+        ViewBox 160x300. Tall, slightly tapered cylinder.
+        Colour palette: warm terracotta / barro rústico.
+        5 layers + ~20% empty headroom at the top.
+
+        Layer Y positions inside the body (y=28 rim … y=282 base):
+          Total inner height ≈ 254px
+          Each layer ≈ 42px tall, gap of ~12px at top (headroom)
+          rocks   : y 240–282
+          soil    : y 198–240
+          coconut : y 156–198
+          perlite : y 114–156
+          pine    : y  72–114
+          headroom:  28– 72  (empty ~44px ≈ 17%)
+      -->
+      <svg id="pot-svg" class="pot-svg" viewBox="0 0 160 310" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Clip to inner cavity of the pot -->
+          <clipPath id="pot-inner-clip">
+            <!-- Rim ellipse -->
+            <ellipse cx="80" cy="28" rx="62" ry="7"/>
+            <!-- Straight-ish walls tapering slightly inward at base -->
+            <path d="M 18 28 L 14 280 Q 14 290 80 290 Q 146 290 146 280 L 142 28 Z"/>
+          </clipPath>
+
+          <!-- Terracotta body gradient: left-face darker, center warmer, right edge slightly lighter -->
+          <linearGradient id="potBody" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#8c4e2a"/>
+            <stop offset="18%"  stop-color="#b86840"/>
+            <stop offset="50%"  stop-color="#c97848"/>
+            <stop offset="78%"  stop-color="#b06038"/>
+            <stop offset="100%" stop-color="#7a3e20"/>
+          </linearGradient>
+
+          <!-- Rim top gradient -->
+          <linearGradient id="rimTop" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#7a3e20"/>
+            <stop offset="40%"  stop-color="#d4906a"/>
+            <stop offset="100%" stop-color="#8c4e2a"/>
+          </linearGradient>
+
+          <!-- Shadow at very bottom -->
+          <linearGradient id="potShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stop-color="rgba(0,0,0,0)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,0.22)"/>
+          </linearGradient>
+
+          <!-- Subtle inner-wall vignette so layers look like they're inside -->
+          <linearGradient id="innerVignette" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="rgba(0,0,0,0.18)"/>
+            <stop offset="12%"  stop-color="rgba(0,0,0,0.04)"/>
+            <stop offset="50%"  stop-color="rgba(0,0,0,0)"/>
+            <stop offset="88%"  stop-color="rgba(0,0,0,0.04)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,0.18)"/>
+          </linearGradient>
+        </defs>
+
+        <!-- ── LAYER FILLS (clipped inside pot, bottom → top) ── -->
+
+        <!-- Layer 1: Rocks — y 240-290 -->
+        <g id="layer-rocks-group" clip-path="url(#pot-inner-clip)" opacity="0" style="transition:opacity 0.3s ease">
+          <rect x="0" y="240" width="160" height="55" fill="#8c7a6e"/>
+          <ellipse cx="26"  cy="252" rx="10" ry="7"  fill="#7a6a5e"/>
+          <ellipse cx="46"  cy="258" rx="8"  ry="6"  fill="#9a8878"/>
+          <ellipse cx="65"  cy="248" rx="11" ry="7"  fill="#7a6a5e"/>
+          <ellipse cx="84"  cy="255" rx="9"  ry="6"  fill="#a09080"/>
+          <ellipse cx="104" cy="250" rx="10" ry="7"  fill="#7a6a5e"/>
+          <ellipse cx="122" cy="257" rx="8"  ry="6"  fill="#9a8878"/>
+          <ellipse cx="140" cy="251" rx="9"  ry="6"  fill="#7a6a5e"/>
+          <ellipse cx="35"  cy="270" rx="9"  ry="5"  fill="#9a8878"/>
+          <ellipse cx="70"  cy="272" rx="10" ry="5"  fill="#7a6a5e"/>
+          <ellipse cx="108" cy="270" rx="8"  ry="5"  fill="#9a8878"/>
+          <ellipse cx="136" cy="268" rx="7"  ry="5"  fill="#7a6a5e"/>
+        </g>
+
+        <!-- Layer 2: Soil — y 198-240 -->
+        <g id="layer-soil-group" clip-path="url(#pot-inner-clip)" opacity="0" style="transition:opacity 0.3s ease">
+          <rect x="0" y="198" width="160" height="44" fill="#7a5c3e"/>
+          <rect x="0" y="198" width="160" height="4"  fill="#8a6c4e" opacity="0.5"/>
+          <circle cx="30"  cy="213" r="2"   fill="#5a3c1e" opacity="0.55"/>
+          <circle cx="55"  cy="207" r="1.5" fill="#6a4c2e" opacity="0.5"/>
+          <circle cx="80"  cy="215" r="2"   fill="#5a3c1e" opacity="0.55"/>
+          <circle cx="106" cy="209" r="1.8" fill="#6a4c2e" opacity="0.5"/>
+          <circle cx="132" cy="214" r="2"   fill="#5a3c1e" opacity="0.55"/>
+          <circle cx="148" cy="208" r="1.5" fill="#6a4c2e" opacity="0.5"/>
+          <circle cx="42"  cy="228" r="1.5" fill="#5a3c1e" opacity="0.45"/>
+          <circle cx="94"  cy="230" r="1.8" fill="#6a4c2e" opacity="0.45"/>
+          <circle cx="140" cy="227" r="1.5" fill="#5a3c1e" opacity="0.45"/>
+        </g>
+
+        <!-- Layer 3: Coconut fiber — y 156-198 -->
+        <g id="layer-coconut-group" clip-path="url(#pot-inner-clip)" opacity="0" style="transition:opacity 0.3s ease">
+          <rect x="0" y="156" width="160" height="44" fill="#b8924a"/>
+          <line x1="14"  y1="163" x2="38"  y2="198" stroke="#a07838" stroke-width="1.3" opacity="0.6"/>
+          <line x1="32"  y1="157" x2="60"  y2="198" stroke="#c8a258" stroke-width="1"   opacity="0.5"/>
+          <line x1="55"  y1="156" x2="78"  y2="198" stroke="#a07838" stroke-width="1.3" opacity="0.6"/>
+          <line x1="74"  y1="157" x2="100" y2="198" stroke="#c8a258" stroke-width="1"   opacity="0.5"/>
+          <line x1="96"  y1="156" x2="120" y2="198" stroke="#a07838" stroke-width="1.3" opacity="0.6"/>
+          <line x1="116" y1="157" x2="142" y2="198" stroke="#c8a258" stroke-width="1"   opacity="0.5"/>
+          <line x1="138" y1="156" x2="158" y2="195" stroke="#a07838" stroke-width="1.3" opacity="0.6"/>
+        </g>
+
+        <!-- Layer 4: Perlite — y 114-156 -->
+        <g id="layer-perlite-group" clip-path="url(#pot-inner-clip)" opacity="0" style="transition:opacity 0.3s ease">
+          <rect x="0" y="114" width="160" height="44" fill="#d8d3cb"/>
+          <circle cx="22"  cy="126" r="5"   fill="white" opacity="0.9"/>
+          <circle cx="38"  cy="136" r="4"   fill="white" opacity="0.85"/>
+          <circle cx="54"  cy="122" r="5.5" fill="white" opacity="0.9"/>
+          <circle cx="70"  cy="138" r="4"   fill="white" opacity="0.85"/>
+          <circle cx="84"  cy="124" r="5"   fill="white" opacity="0.9"/>
+          <circle cx="100" cy="135" r="4.5" fill="white" opacity="0.85"/>
+          <circle cx="116" cy="125" r="5"   fill="white" opacity="0.9"/>
+          <circle cx="132" cy="136" r="4"   fill="white" opacity="0.85"/>
+          <circle cx="148" cy="122" r="4.5" fill="white" opacity="0.85"/>
+          <circle cx="30"  cy="147" r="4"   fill="white" opacity="0.8"/>
+          <circle cx="64"  cy="149" r="4.5" fill="white" opacity="0.82"/>
+          <circle cx="96"  cy="148" r="4"   fill="white" opacity="0.8"/>
+          <circle cx="126" cy="149" r="4.5" fill="white" opacity="0.82"/>
+        </g>
+
+        <!-- Layer 5: Pine bark — y 72-114 -->
+        <g id="layer-pine-group" clip-path="url(#pot-inner-clip)" opacity="0" style="transition:opacity 0.3s ease">
+          <rect x="0" y="72" width="160" height="44" fill="#8b6035"/>
+          <rect x="16"  y="76"  width="16" height="10" rx="2" fill="#6b4820" opacity="0.85"/>
+          <rect x="36"  y="80"  width="20" height="9"  rx="2" fill="#9b7040" opacity="0.85"/>
+          <rect x="60"  y="74"  width="16" height="11" rx="2" fill="#6b4820" opacity="0.85"/>
+          <rect x="80"  y="79"  width="18" height="9"  rx="2" fill="#9b7040" opacity="0.85"/>
+          <rect x="102" y="75"  width="16" height="10" rx="2" fill="#6b4820" opacity="0.85"/>
+          <rect x="122" y="80"  width="18" height="9"  rx="2" fill="#9b7040" opacity="0.85"/>
+          <rect x="22"  y="92"  width="18" height="9"  rx="2" fill="#9b7040" opacity="0.85"/>
+          <rect x="46"  y="93"  width="16" height="9"  rx="2" fill="#6b4820" opacity="0.85"/>
+          <rect x="68"  y="91"  width="20" height="10" rx="2" fill="#9b7040" opacity="0.85"/>
+          <rect x="94"  y="92"  width="16" height="9"  rx="2" fill="#6b4820" opacity="0.85"/>
+          <rect x="114" y="91"  width="18" height="10" rx="2" fill="#9b7040" opacity="0.85"/>
+          <rect x="136" y="93"  width="14" height="9"  rx="2" fill="#6b4820" opacity="0.85"/>
+        </g>
+
+        <!-- Inner side vignette (depth effect, on top of layers but under walls) -->
+        <rect x="14" y="28" width="132" height="262" fill="url(#innerVignette)" clip-path="url(#pot-inner-clip)"/>
+
+        <!-- ── POT WALLS (terracotta, drawn over layers) ── -->
+
+        <!-- Main body — left wall -->
+        <path d="M 18 28 L 14 280 Q 14 290 22 292" stroke="none" fill="none"/>
+
+        <!-- Full pot body outline with terracotta fill (walls only, semi-masked so layers show through middle) -->
+        <!-- Left wall thick strip -->
+        <path d="M 18 27 L 14 282 Q 14 292 80 293 Q 146 292 146 282 L 142 27 Z"
+              fill="none"
+              stroke="url(#potBody)"
+              stroke-width="13"
+              stroke-linejoin="round"/>
+
+        <!-- Solid wall fill left -->
+        <path d="M 18 27 L 14 282 Q 14 292 26 293 L 26 27 Z" fill="url(#potBody)"/>
+        <!-- Solid wall fill right -->
+        <path d="M 142 27 L 146 282 Q 146 292 134 293 L 134 27 Z" fill="url(#potBody)"/>
+
+        <!-- Outer pot outline stroke -->
+        <path d="M 18 28 L 14 282 Q 14 292 80 293 Q 146 292 146 282 L 142 28"
+              fill="none"
+              stroke="#6a3018"
+              stroke-width="1.4"
+              stroke-linejoin="round"/>
+
+        <!-- Bottom base ellipse -->
+        <ellipse cx="80" cy="290" rx="66" ry="7" fill="#9a5830" stroke="#6a3018" stroke-width="1.2"/>
+        <!-- Shadow on base -->
+        <ellipse cx="80" cy="290" rx="66" ry="7" fill="url(#potShadow)"/>
+
+        <!-- Rim collar (top band — slightly wider, like a real terracotta rim) -->
+        <path d="M 12 22 Q 12 14 80 14 Q 148 14 148 22 L 145 32 Q 145 36 80 36 Q 15 36 15 32 Z"
+              fill="#b86040" stroke="#6a3018" stroke-width="1.2"/>
+        <!-- Rim top ellipse highlight -->
+        <ellipse cx="80" cy="14" rx="68" ry="8" fill="#d09070" stroke="#6a3018" stroke-width="1"/>
+        <!-- Rim inner shadow (opening) -->
+        <ellipse cx="80" cy="28" rx="62" ry="7" fill="#3a1a08" opacity="0.45"/>
+        <!-- Rim inner highlight arc -->
+        <path d="M 32 25 Q 80 20 128 25" stroke="rgba(220,160,120,0.5)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+        <!-- Left wall sheen -->
+        <path d="M 20 30 L 17 270" stroke="rgba(220,140,80,0.35)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M 30 30 L 27 270" stroke="rgba(255,180,120,0.15)" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+        <!-- Right subtle reflection -->
+        <path d="M 140 30 L 143 270" stroke="rgba(80,30,10,0.25)" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+        <!-- Tiny texture lines on body (rustic barro feel) -->
+        <line x1="16" y1="90"  x2="16" y2="110" stroke="rgba(100,40,15,0.25)" stroke-width="0.8"/>
+        <line x1="16" y1="150" x2="16" y2="170" stroke="rgba(100,40,15,0.2)"  stroke-width="0.8"/>
+        <line x1="16" y1="210" x2="16" y2="230" stroke="rgba(100,40,15,0.2)"  stroke-width="0.8"/>
+        <line x1="144" y1="100" x2="144" y2="120" stroke="rgba(60,20,5,0.2)"  stroke-width="0.8"/>
+        <line x1="144" y1="180" x2="144" y2="200" stroke="rgba(60,20,5,0.2)"  stroke-width="0.8"/>
+      </svg>
+
+      <!-- Desktop labels -->
+      <div class="layer-labels">
+        <div class="layer-label" id="label-pine">
+          <div class="layer-label-line"></div>
+          <span class="layer-label-text">Cortezas · Bark</span>
+        </div>
+        <div class="layer-label" id="label-perlite">
+          <div class="layer-label-line"></div>
+          <span class="layer-label-text">Perlita · Perlite</span>
+        </div>
+        <div class="layer-label" id="label-coconut">
+          <div class="layer-label-line"></div>
+          <span class="layer-label-text">Fibra coco · Coco fiber</span>
+        </div>
+        <div class="layer-label" id="label-soil">
+          <div class="layer-label-line"></div>
+          <span class="layer-label-text">Tierra · Soil</span>
+        </div>
+        <div class="layer-label" id="label-rocks">
+          <div class="layer-label-line"></div>
+          <span class="layer-label-text">Piedras · Rocks</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPEECHES ACCORDION -->
+  <div class="speeches-section">
+    <div class="speeches-title">Discursos · Speeches</div>
+    <div id="speeches-container">
+      <div class="empty-state" id="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 12 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/>
+          <path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <p>Los discursos aparecerán aquí · Speeches will appear here</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════
+   DATA
+═══════════════════════ */
+const SPEECHES = [
+  {
+    id: 1, speaker: "Carlos & Elena", role: "Padres de Manu · Manu's Parents", layer: "rocks",
+    es: `Querido Manuel, cuando eras pequeño nos preguntabas siempre cuándo encontrarías a alguien que te quisiera tanto como nosotros. Hoy tenemos la respuesta. Dani llegó a tu vida como llega la primavera: sin avisar, llenándolo todo de color.\n\nHemos visto cómo te transformabas. Cómo aprendiste a escuchar, a ceder, a reír de otro modo. El amor, hijo, no te hace más pequeño. Te hace más entero.\n\nHoy os deseamos lo que nosotros hemos tenido durante treinta y cinco años: la certeza de que al final del día siempre hay alguien esperándote en casa. Brindemos por Manu y Dani.`,
+    en: `Dear Manuel, when you were little you always asked us when you would find someone who loved you as much as we do. Today we have the answer. Dani came into your life like spring arrives: unannounced, filling everything with color.\n\nWe have watched you transform. How you learned to listen, to yield, to laugh in a different way. Love, son, does not make you smaller. It makes you more whole.\n\nToday we wish you what we have had for thirty-five years: the certainty that at the end of the day, there is always someone waiting for you at home. Let us raise a glass to Manu and Dani.`
+  },
+  {
+    id: 2, speaker: "Rosa & Tomás", role: "Padres de Dani · Dani's Parents", layer: "soil",
+    es: `Dani, eres nuestra mayor aventura. Desde el primer día supimos que el mundo no te iba a contener fácilmente. Y tenían razón todos los que decían que necesitabas a alguien que supiera seguirte el ritmo.\n\nManu, gracias por quererla exactamente como es. No a pesar de su carácter, sino por él. Eso es lo que hace un compañero de verdad.\n\nOs pedimos una sola cosa: que cuando la vida se ponga difícil —y se pondrá— os miréis y os acordéis de este día, de esta luz, de esta alegría. Que sea vuestra brújula. Por Manu y Dani.`,
+    en: `Dani, you are our greatest adventure. From the very first day we knew the world was not going to contain you easily. And everyone who said you needed someone who could keep up with your rhythm was right.\n\nManu, thank you for loving her exactly as she is. Not in spite of her character, but because of it. That is what a true partner does.\n\nWe ask only one thing of you: when life gets hard — and it will — look at each other and remember this day, this light, this joy. Let it be your compass. To Manu and Dani.`
+  },
+  {
+    id: 3, speaker: "Sofía", role: "Mejor amiga de Dani · Dani's Best Friend", layer: "coconut",
+    es: `Dani, llevamos quince años siendo amigas. He estado en todos tus momentos importantes, en las alegrías y en las crisis de las dos de la mañana. Y puedo decir, con total conocimiento de causa, que nunca te había visto tan feliz.\n\nLa primera vez que me hablaste de Manu, a mitad de frase me dijiste: "Es que me escucha, Sofía. De verdad." Y pensé: este es el indicado.\n\nManu, te encargamos a la persona más especial de nuestra vida. Cuídala. Y Dani, cuídalo a él también, que tú no eres fácil. Os quiero muchísimo a los dos.`,
+    en: `Dani, we have been friends for fifteen years. I have been there for all your important moments, the highs and the two-in-the-morning crises. And I can say, with full knowledge, that I have never seen you this happy.\n\nThe first time you told me about Manu, halfway through the sentence you said: "He listens to me, Sofía. Really listens." And I thought: this is the one.\n\nManu, we entrust you with the most special person in our lives. Take care of her. And Dani, take care of him too — you are not easy to live with. I love you both so much.`
+  },
+  {
+    id: 4, speaker: "Pablo & Sergio", role: "Amigos de Manu · Manu's Friends", layer: "perlite",
+    es: `Nosotros conocemos a Manu desde los siete años. Hemos compartido campamentos, mudanzas, proyectos absurdos y alguna que otra idea terrible. Y en todo ese tiempo, jamás le habíamos visto mirar a nadie como mira a Dani.\n\nHay una cosa que aprendes cuando conoces bien a alguien: sabes cuándo llega la persona correcta porque ese alguien simplemente... mejora. Y Manu ha mejorado. En todo.\n\nDani, gracias por hacer de nuestro amigo la mejor versión de sí mismo. Y Manu, menos mal que al final encontraste el camino. Salud.`,
+    en: `We have known Manu since we were seven years old. We have shared summer camps, apartments, ridiculous projects, and more than a few terrible ideas. And in all that time, we had never seen him look at anyone the way he looks at Dani.\n\nThere is something you learn when you know someone well: you know when the right person arrives because that someone simply... improves. And Manu has improved. In every way.\n\nDani, thank you for making our friend the best version of himself. And Manu, thank goodness you finally found your way. Cheers.`
+  },
+  {
+    id: 5, speaker: "Abuelos · Grandparents", role: "Familia · Family", layer: "pine",
+    es: `Hemos visto muchas bodas en esta familia. Bodas sencillas, bodas difíciles, bodas que duraron y algunas que no. Y con los años aprendes que el secreto no está en el día de hoy, tan hermoso como es.\n\nEl secreto está en los miles de días normales que vienen después. En compartir el café por la mañana. En decidir juntos qué hacer un domingo sin planes. En perdonarse cuando hay que perdonarse.\n\nHoy sois los protagonistas. Mañana seréis compañeros. Y eso, Manu y Dani, es lo más bonito que existe. Os queremos.`,
+    en: `We have seen many weddings in this family. Simple weddings, difficult ones, weddings that lasted and some that did not. And with the years you learn that the secret is not in today, as beautiful as it is.\n\nThe secret is in the thousands of ordinary days that come after. In sharing morning coffee. In deciding together what to do on a Sunday with no plans. In forgiving each other when forgiveness is needed.\n\nToday you are the stars. Tomorrow you will be companions. And that, Manu and Dani, is the most beautiful thing there is. We love you.`
+  }
+];
+
+const LAYER_ORDER = ['rocks','soil','coconut','perlite','pine'];
+const LAYER_LABEL = { rocks:'label-rocks', soil:'label-soil', coconut:'label-coconut', perlite:'label-perlite', pine:'label-pine' };
+
+/* ═══════════════════════
+   PARTICLE SYSTEM
+═══════════════════════ */
+const canvas = document.getElementById('particle-canvas');
+const ctx    = canvas.getContext('2d');
+let particles = [];
+let raf = null;
+
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const PARTICLE_CFG = {
+  rocks:   { colors:['#8c7a6e','#9a8878','#7a6a5e','#b0a090'], minS:5,  maxS:11, shape:'rock' },
+  soil:    { colors:['#7a5c3e','#8a6c4e','#5a3c1e','#6a4c2e'], minS:3,  maxS:6,  shape:'dot'  },
+  coconut: { colors:['#b8924a','#a07838','#c8a258','#d4b06a'], minS:2,  maxS:5,  shape:'line' },
+  perlite: { colors:['#ffffff','#f0ede8','#e8e4de','#ddd8d0'], minS:4,  maxS:8,  shape:'dot'  },
+  pine:    { colors:['#8b6035','#6b4820','#9b7040','#7a5228'], minS:6,  maxS:13, shape:'rect' }
+};
+
+/* Layer destination Y in SVG viewBox (0-310 h):
+   Rim opening at vb y=28.
+   rocks   centre~262, soil~220, coconut~178, perlite~136, pine~94 */
+const LAYER_VB_Y  = { rocks:262, soil:220, coconut:178, perlite:136, pine:94 };
+const LAYER_OPEN_Y = 28;
+const VB_HEIGHT = 310;
+const VB_WIDTH  = 160;
+
+function svgToPage(vbX, vbY) {
+  const el = document.getElementById('pot-svg');
+  const r  = el.getBoundingClientRect();
+  return {
+    x: r.left + (vbX / VB_WIDTH)  * r.width,
+    y: r.top  + window.scrollY + (vbY / VB_HEIGHT) * r.height
+  };
+}
+
+function spawnParticles(layer) {
+  const cfg = PARTICLE_CFG[layer];
+  if (!cfg) return;
+
+  const el = document.getElementById('pot-svg');
+  const r  = el.getBoundingClientRect();
+  const scaleX = r.width / VB_WIDTH;
+  const scaleY = r.height / VB_HEIGHT;
+
+  const targetY  = r.top + window.scrollY + LAYER_VB_Y[layer] * scaleY;
+  const startY   = r.top + window.scrollY + LAYER_OPEN_Y * scaleY - 10;
+  const leftEdge = r.left + 18 * scaleX;
+  const rightEdge= r.left + 142 * scaleX;
+
+  const count = 42;
+  for (let i = 0; i < count; i++) {
+    const x   = leftEdge + Math.random() * (rightEdge - leftEdge);
+    const col = cfg.colors[Math.floor(Math.random() * cfg.colors.length)];
+    const s   = cfg.minS + Math.random() * (cfg.maxS - cfg.minS);
+    particles.push({
+      x, y: startY,
+      targetY: targetY + (Math.random() - 0.5) * 14,
+      vy: 0.4 + Math.random() * 1.2,
+      vx: (Math.random() - 0.5) * 1.4,
+      s, col,
+      shape: cfg.shape,
+      delay: i * 22 + Math.random() * 35,
+      elapsed: 0,
+      alpha: 1,
+      settled: false,
+      rot: Math.random() * Math.PI * 2,
+      rotV: (Math.random() - 0.5) * 0.14
+    });
+  }
+  if (!raf) animLoop();
+}
+
+function drawParticle(p) {
+  ctx.save();
+  ctx.globalAlpha = Math.max(0, p.alpha);
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.rot);
+  ctx.fillStyle = p.col;
+  if (p.shape === 'rock') {
+    ctx.beginPath();
+    ctx.ellipse(0, 0, p.s, p.s * 0.62, 0, 0, Math.PI*2);
+    ctx.fill();
+  } else if (p.shape === 'rect') {
+    ctx.fillRect(-p.s/2, -p.s*0.32, p.s, p.s*0.64);
+  } else if (p.shape === 'line') {
+    ctx.strokeStyle = p.col;
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.moveTo(-p.s, 0); ctx.lineTo(p.s, 0);
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.arc(0, 0, p.s/2, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function animLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const alive = [];
+  const dt = 16;
+
+  for (const p of particles) {
+    p.elapsed += dt;
+    if (p.elapsed < p.delay) { alive.push(p); continue; }
+
+    if (!p.settled) {
+      const dy = p.targetY - p.y;
+      if (dy > 1.5) {
+        p.vy += 0.65;
+        p.vy  = Math.min(p.vy, 16);
+        p.y  += p.vy;
+        p.x  += p.vx;
+        p.vx *= 0.97;
+      } else {
+        p.y  = p.targetY;
+        p.vy *= -0.18; // tiny bounce
+        p.settled = true;
+      }
+    } else {
+      p.alpha -= 0.032;
+    }
+
+    p.rot += p.rotV;
+    if (p.alpha > 0) { drawParticle(p); alive.push(p); }
+  }
+
+  particles = alive;
+  if (particles.length > 0) {
+    raf = requestAnimationFrame(animLoop);
+  } else {
+    raf = null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+/* ═══════════════════════
+   LAYER MANAGEMENT
+═══════════════════════ */
+let prevLayers = [];
+
+function updateLayers(activeLayers) {
+  LAYER_ORDER.forEach(layer => {
+    const g     = document.getElementById(`layer-${layer}-group`);
+    const label = document.getElementById(LAYER_LABEL[layer]);
+    const isNew = activeLayers.includes(layer) && !prevLayers.includes(layer);
+    const isActive = activeLayers.includes(layer);
+
+    if (isActive) {
+      if (isNew) {
+        spawnParticles(layer);
+        g.style.transition = 'opacity 0.25s ease 0.55s';
+        g.style.opacity = '0';
+        setTimeout(() => { g.style.opacity = '1'; }, 580);
+      } else {
+        g.style.transition = 'none';
+        g.style.opacity = '1';
+      }
+      if (label) label.classList.add('visible');
+    } else {
+      g.style.opacity = '0';
+      if (label) label.classList.remove('visible');
+    }
+  });
+  prevLayers = [...activeLayers];
+}
+
+/* ═══════════════════════
+   ACCORDION
+═══════════════════════ */
+let expandedId   = null;
+let prevActiveIds = [];
+
+function renderSpeeches(activeIds) {
+  const container = document.getElementById('speeches-container');
+  const newId = activeIds.find(id => !prevActiveIds.includes(id));
+
+  const activeLayers = SPEECHES.filter(s => activeIds.includes(s.id)).map(s => s.layer);
+  updateLayers(activeLayers);
+
+  if (activeIds.length === 0) {
+    container.innerHTML = '';
+    container.appendChild(createEmptyState());
+    expandedId = null;
+    prevActiveIds = [...activeIds];
+    return;
+  }
+
+  // Auto-expand newest
+  if (newId) expandedId = newId;
+
+  container.innerHTML = '';
+  SPEECHES.filter(s => activeIds.includes(s.id)).forEach(speech => {
+    container.appendChild(createCard(speech, speech.id === expandedId));
+  });
+
+  prevActiveIds = [...activeIds];
+}
+
+function createEmptyState() {
+  const d = document.createElement('div');
+  d.className = 'empty-state'; d.id = 'empty-state';
+  d.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 12 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M12 8v4M12 16h.01"/></svg><p>Los discursos aparecerán aquí · Speeches will appear here</p>`;
+  return d;
+}
+
+function createCard(speech, expanded) {
+  const card = document.createElement('div');
+  card.className = `speech-card${expanded ? ' expanded' : ''}`;
+  card.id = `speech-card-${speech.id}`;
+
+  card.innerHTML = `
+    <div class="speech-card-header">
+      <div class="speech-meta">
+        <div class="speech-speaker">${speech.speaker}</div>
+        <div class="speech-role">${speech.role}</div>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="es">ES</button>
+        <button class="lang-btn"        data-lang="en">EN</button>
+      </div>
+    </div>
+    <div class="speech-body-wrap">
+      <div class="speech-body-inner">
+        <div class="speech-divider"></div>
+        <div class="speech-body">
+          <div class="speech-text active" data-lang="es">${fmt(speech.es)}</div>
+          <div class="speech-text"        data-lang="en">${fmt(speech.en)}</div>
+        </div>
+      </div>
+    </div>`;
+
+  card.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      card.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      card.querySelectorAll('.speech-text').forEach(t => {
+        t.classList.toggle('active', t.dataset.lang === btn.dataset.lang);
+      });
+    });
+  });
+
+  return card;
+}
+
+function fmt(text) {
+  return text.split('\n\n').map(p => `<p style="margin-bottom:.8em">${p}</p>`).join('');
+}
+
+/* ═══════════════════════
+   STATE / ROUTING
+═══════════════════════ */
+let state = { page: 'landing', activeSpeeches: [] };
+
+function showLanding() {
+  document.getElementById('landing').style.display = 'flex';
+  document.getElementById('main-view').style.display = 'none';
+}
+function showMain() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('main-view').style.display = 'flex';
+}
+
+function applyState(s) {
+  if (s.page === 'main') showMain(); else showLanding();
+  renderSpeeches(s.activeSpeeches || []);
+}
+
+// BroadcastChannel as local fallback
+const channel = new BroadcastChannel('wedding-channel');
+channel.onmessage = e => applyState(e.data);
+
+applyState(state);
+
+// ─── FIREBASE ───
+const firebaseConfig = {
+  apiKey: "AIzaSyAMUKXjssHJJRLp-UEIY2Vj0lFumUin3jc",
+  authDomain: "boda-many-y-dani.firebaseapp.com",
+  databaseURL: "https://boda-many-y-dani-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "boda-many-y-dani",
+  storageBucket: "boda-many-y-dani.firebasestorage.app",
+  messagingSenderId: "1001812545389",
+  appId: "1:1001812545389:web:da29ef783693a61b81d464"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+db.ref('weddingState').on('value', (snapshot) => {
+  const remote = snapshot.val();
+  if (remote) {
+    applyState({ page: remote.page || 'landing', activeSpeeches: remote.activeSpeeches || [] });
+  }
+});
+</script>
+</body>
+</html>

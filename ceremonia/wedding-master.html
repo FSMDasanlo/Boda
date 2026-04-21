@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master · Manu & Dani 06.06.2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --beige-light: #f5f0e8;
+    --beige-mid: #e8dcc8;
+    --beige-dark: #c9b89a;
+    --olive-light: #8a9a6a;
+    --olive-mid: #6b7a52;
+    --olive-dark: #4a5638;
+    --brown-light: #c4a882;
+    --brown-mid: #8b6b47;
+    --brown-dark: #5c4530;
+    --text-dark: #3a3228;
+    --text-mid: #6b5d4f;
+    --text-light: #9a8878;
+    --cream: #faf6ef;
+    --green-active: #4a5638;
+    --green-active-bg: #eef2e8;
+  }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'Jost', sans-serif;
+    background: var(--beige-light);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  /* ─── HEADER ─── */
+  .master-header {
+    background: var(--olive-dark);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .master-header-left h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--beige-light);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+
+  .master-header-left p {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.5);
+    margin-top: 0.2rem;
+  }
+
+  .master-badge {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.7);
+    white-space: nowrap;
+  }
+
+  /* ─── CONTENT ─── */
+  .master-content {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  /* ─── SECTION ─── */
+  .section-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--beige-mid);
+  }
+
+  /* ─── PAGE CONTROL ─── */
+  .page-control {
+    background: white;
+    border: 1px solid var(--beige-mid);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .page-control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .page-control-info h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-dark);
+    line-height: 1.3;
+  }
+
+  .page-control-info p {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.2rem;
+  }
+
+  /* Status indicator */
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--beige-dark);
+    display: inline-block;
+    margin-right: 6px;
+    transition: background 0.3s;
+  }
+
+  .status-dot.active {
+    background: var(--olive-light);
+    box-shadow: 0 0 0 3px rgba(138,154,106,0.2);
+  }
+
+  /* ─── TOGGLE SWITCH ─── */
+  .toggle-switch {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--beige-mid);
+    border-radius: 13px;
+    cursor: pointer;
+    transition: background 0.25s;
+    border: 1px solid var(--beige-dark);
+  }
+
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.25s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .toggle-switch input:checked + .toggle-track {
+    background: var(--olive-mid);
+    border-color: var(--olive-dark);
+  }
+
+  .toggle-switch input:checked + .toggle-track::after {
+    transform: translateX(22px);
+  }
+
+  /* ─── SPEECH CARDS ─── */
+  .speeches-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .speech-master-card {
+    background: white;
+    border: 1px solid var(--beige-mid);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .speech-master-card.active {
+    border-color: var(--olive-light);
+    box-shadow: 0 0 0 3px rgba(138,154,106,0.12);
+  }
+
+  .speech-master-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--beige-dark);
+    transition: background 0.25s;
+  }
+
+  .speech-master-card.active::before {
+    background: var(--olive-mid);
+  }
+
+  .card-main-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .card-order {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--beige-light);
+    border: 1px solid var(--beige-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-light);
+    flex-shrink: 0;
+    transition: background 0.25s, color 0.25s, border-color 0.25s;
+  }
+
+  .speech-master-card.active .card-order {
+    background: var(--olive-dark);
+    color: white;
+    border-color: var(--olive-dark);
+  }
+
+  .card-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-dark);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-subtitle {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-top: 0.15rem;
+  }
+
+  .card-status {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .card-status .status-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .layer-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--beige-light);
+    border: 1px solid var(--beige-mid);
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+  }
+
+  .layer-chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ─── STATUS BAR ─── */
+  .status-bar {
+    background: white;
+    border: 1px solid var(--beige-mid);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .status-bar-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+  }
+
+  .progress-track {
+    height: 6px;
+    background: var(--beige-light);
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--beige-mid);
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--olive-mid);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+  }
+
+  .progress-labels span {
+    font-size: 0.65rem;
+    color: var(--text-light);
+  }
+
+  /* ─── LAYER COLORS ─── */
+  [data-layer="rocks"] .layer-chip-dot { background: #8c7a6e; }
+  [data-layer="soil"] .layer-chip-dot { background: #7a5c3e; }
+  [data-layer="coconut"] .layer-chip-dot { background: #b8924a; }
+  [data-layer="perlite"] .layer-chip-dot { background: #b0aaa0; }
+  [data-layer="pine"] .layer-chip-dot { background: #8b6035; }
+
+  /* ─── BROADCAST STATUS ─── */
+  .broadcast-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    color: var(--text-light);
+    background: var(--beige-light);
+    border: 1px solid var(--beige-mid);
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    margin-bottom: 2rem;
+  }
+
+  .broadcast-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--olive-light);
+    animation: blink 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ─── FOOTER ─── */
+  .master-footer {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    border-top: 1px solid var(--beige-mid);
+    margin-top: 1rem;
+  }
+</style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<header class="master-header">
+  <div class="master-header-left">
+    <h1>Manu &amp; Dani</h1>
+    <p>Panel de control · 06.06.2026</p>
+  </div>
+  <span class="master-badge">Master</span>
+</header>
+
+<div class="master-content">
+
+  <!-- Broadcast status -->
+  <div class="broadcast-status">
+    <div class="broadcast-dot"></div>
+    <span>Emitiendo en tiempo real a todos los dispositivos</span>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="status-bar">
+    <div class="status-bar-title">Progreso de la ceremonia</div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-labels">
+      <span id="progress-label">0 de 5 discursos</span>
+      <span id="progress-pct">0%</span>
+    </div>
+  </div>
+
+  <!-- Page control -->
+  <div class="section-title">Pantalla principal</div>
+  <div class="page-control" style="margin-bottom:2rem">
+    <div class="page-control-row">
+      <div class="page-control-info">
+        <h2><span class="status-dot" id="page-dot"></span>Mostrar discursos</h2>
+        <p id="page-desc">La pantalla muestra la landing page</p>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="page-toggle">
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Speeches -->
+  <div class="section-title">Discursos</div>
+  <div class="speeches-list" id="speeches-list"></div>
+
+  <div class="master-footer">Manu &amp; Dani · 06 · 06 · 2026</div>
+</div>
+
+<script>
+const SPEECHES = [
+  {
+    id: 1,
+    speaker: "Carlos & Elena",
+    role: "Padres de Manu",
+    layer: "rocks",
+    layerName: "Piedras grandes"
+  },
+  {
+    id: 2,
+    speaker: "Rosa & Tomás",
+    role: "Padres de Dani",
+    layer: "soil",
+    layerName: "Tierra"
+  },
+  {
+    id: 3,
+    speaker: "Sofía",
+    role: "Mejor amiga de Dani",
+    layer: "coconut",
+    layerName: "Fibra de coco"
+  },
+  {
+    id: 4,
+    speaker: "Pablo & Sergio",
+    role: "Amigos de Manu",
+    layer: "perlite",
+    layerName: "Perlita"
+  },
+  {
+    id: 5,
+    speaker: "Abuelos",
+    role: "Familia",
+    layer: "pine",
+    layerName: "Cortezas de pino"
+  }
+];
+
+// ─── STATE ───
+let state = {
+  page: 'landing',
+  activeSpeeches: []
+};
+
+// ─── FIREBASE ───
+const firebaseConfig = {
+  apiKey: "AIzaSyAMUKXjssHJJRLp-UEIY2Vj0lFumUin3jc",
+  authDomain: "boda-many-y-dani.firebaseapp.com",
+  databaseURL: "https://boda-many-y-dani-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "boda-many-y-dani",
+  storageBucket: "boda-many-y-dani.firebasestorage.app",
+  messagingSenderId: "1001812545389",
+  appId: "1:1001812545389:web:da29ef783693a61b81d464"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const stateRef = db.ref('weddingState');
+
+// BroadcastChannel as local fallback
+const channel = new BroadcastChannel('wedding-channel');
+
+function broadcast() {
+  channel.postMessage({ ...state });
+  stateRef.set(state);
+}
+
+// ─── RENDER LIST ───
+function renderList() {
+  const list = document.getElementById('speeches-list');
+  list.innerHTML = '';
+
+  SPEECHES.forEach((speech, i) => {
+    const isActive = state.activeSpeeches.includes(speech.id);
+    const card = document.createElement('div');
+    card.className = `speech-master-card${isActive ? ' active' : ''}`;
+    card.setAttribute('data-layer', speech.layer);
+
+    card.innerHTML = `
+      <div class="card-main-row">
+        <div class="card-order">${i + 1}</div>
+        <div class="card-info">
+          <div class="card-title">${speech.speaker}</div>
+          <div class="card-subtitle">${speech.role}</div>
+        </div>
+        <label class="toggle-switch" title="Activar discurso">
+          <input type="checkbox" data-id="${speech.id}" ${isActive ? 'checked' : ''}>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div style="margin-left:34px">
+        <span class="layer-chip">
+          <span class="layer-chip-dot"></span>
+          ${speech.layerName}
+        </span>
+        <div class="card-status">
+          <span class="status-dot${isActive ? ' active' : ''}"></span>
+          <span style="color: ${isActive ? 'var(--olive-mid)' : 'var(--text-light)'}; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase">
+            ${isActive ? 'Activo · visible en pantalla' : 'Inactivo · oculto'}
+          </span>
+        </div>
+      </div>
+    `;
+
+    const checkbox = card.querySelector('input[type="checkbox"]');
+    checkbox.addEventListener('change', () => {
+      const id = parseInt(checkbox.dataset.id);
+      if (checkbox.checked) {
+        // Add in order
+        if (!state.activeSpeeches.includes(id)) {
+          state.activeSpeeches = SPEECHES
+            .filter(s => state.activeSpeeches.includes(s.id) || s.id === id)
+            .map(s => s.id);
+        }
+      } else {
+        state.activeSpeeches = state.activeSpeeches.filter(sid => sid !== id);
+      }
+      updateUI();
+      broadcast();
+    });
+
+    list.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+function updatePageControl() {
+  const toggle = document.getElementById('page-toggle');
+  const dot = document.getElementById('page-dot');
+  const desc = document.getElementById('page-desc');
+
+  const isMain = state.page === 'main';
+  dot.classList.toggle('active', isMain);
+  desc.textContent = isMain
+    ? 'La pantalla muestra los discursos'
+    : 'La pantalla muestra la landing page';
+}
+
+function updateProgress() {
+  const total = SPEECHES.length;
+  const active = state.activeSpeeches.length;
+  const pct = Math.round((active / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${active} de ${total} discursos`;
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+function updateUI() {
+  renderList();
+  updatePageControl();
+}
+
+// ─── PAGE TOGGLE ───
+document.getElementById('page-toggle').addEventListener('change', function() {
+  state.page = this.checked ? 'main' : 'landing';
+  updateUI();
+  broadcast();
+});
+
+// ─── INIT ───
+updateUI();
+
+// ─── FIREBASE SYNC ───
+// On load, read current state from Firebase (in case master reloads)
+stateRef.on('value', (snapshot) => {
+  const remote = snapshot.val();
+  if (remote) {
+    state = { page: remote.page || 'landing', activeSpeeches: remote.activeSpeeches || [] };
+    document.getElementById('page-toggle').checked = state.page === 'main';
+    updateUI();
+  }
+});
+</script>
+</body>
+</html>
