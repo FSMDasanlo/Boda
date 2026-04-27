@@ -58,8 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (textEs) textEs.textContent = "Ceremonia";
             if (textEn) textEn.textContent = "Ceremony";
 
-            // --- flipButton.href = "https://daniymanuboda.my.canva.site/esp"; ---
-            flipButton.href = "/ceremonia/wedding-viewer.html";
+            flipButton.href = "https://daniymanuboda.my.canva.site/esp"; 
+            // ---flipButton.href = "/ceremonia/wedding-viewer.html";
             flipButton.target = "_blank";
             flipButton.rel = "noopener noreferrer"; // Seguridad para pestañas nuevas
 
